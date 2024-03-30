@@ -55,7 +55,7 @@ public:
     
     /* Tarjan */
     void traversee(int s, TarjanData &td);
-    void fortConnexe( int*&prem, int*&CFC);
+    void fortConnexe(int*&prem, int*&CFC);
     graph graph_reduit(int *prem, int *cfc);
     void base_Greduit(int *&br);
     void edition_bases();

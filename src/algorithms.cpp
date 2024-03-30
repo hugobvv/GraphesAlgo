@@ -4,7 +4,10 @@
 #include "algorithms.h"
 using namespace std;
 
-algorithms::algorithms(const graph &g): d_g{g}, d_pilch{new int[g.getAps(0)+1]} {}
+algorithms::algorithms(const graph &g): d_g{g}, d_pilch{new int[g.getAps(0)+1]} 
+{
+	d_pilch[0] = 0;
+}
 
 void algorithms::rang(int *&rang)
 {

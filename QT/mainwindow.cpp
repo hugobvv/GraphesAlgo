@@ -286,15 +286,30 @@ void MainWindow::click_ButtonRankAlgorithm()
     for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
     {
         string V = SuccessorEntries[i]->text().toStdString();
+        while(!(isdigit(V[V.length() - 1]))) // on considere que si il y a des caractères en plus c'est que le mec s'est trompé genre une virgule pas grave
+            V.pop_back();
+
         if(!(V.length() == 0))
         {
             vector<int> tmp;
             stringstream ss(V);
             while (ss.good())
             {
-                int number;
+                int number;               
                 char delimiter;
                 ss >> number >> delimiter;
+
+                if(number > static_cast<int>(SuccessorEntries.size())-1 || number < 0) // saisie securisée, j'ai pas mis que le delimiteur doit etre obligatoirement "," mais az ptetre à faire
+                {
+                    QMessageBox{QMessageBox::Warning, "Erreur de saisie","Le sommet " + QString::fromStdString(to_string(number)) + " n'existe pas." ,QMessageBox::Ok}.exec();
+                    return;
+                }
+                if(number == 0)
+                {
+                    QMessageBox{QMessageBox::Warning, "Erreur de saisie","Un sommet 0 a été saisi ou la saisie a mal été effectuée, vérifiez vos valeurs.\nSi un sommet n'a pas de successeurs, laissez la case vide.", QMessageBox::Ok}.exec();
+                    return;
+                }
+
                 tmp.push_back(number);
             }
             for(int n : tmp)
@@ -305,7 +320,7 @@ void MainWindow::click_ButtonRankAlgorithm()
     fs[0] = fs.size()-1;
 
     aps.push_back(1);
-    for(int i=1; i<static_cast<int>(fs.size()); i++) // remplir aps
+    for(int i=1; i<static_cast<int>(fs.size()); i++) // remplir aps à partir de fs
     {
         if(fs[i] == 0 && i+1 < static_cast<int>(fs.size()))
             aps.push_back(i+1);
@@ -319,7 +334,7 @@ void MainWindow::click_ButtonRankAlgorithm()
     for(int i=0; i<static_cast<int>(aps.size());i++)
         s += to_string(aps[i]) + ", ";
 
-    QMessageBox{QMessageBox::Warning, "Fs et Aps",QString::fromStdString(s), QMessageBox::Ok}.exec();
+    QMessageBox{QMessageBox::Information, "Fs et Aps",QString::fromStdString(s), QMessageBox::Ok}.exec();
 }
 
 void MainWindow::click_ButtonTarjanAlgorithm()
@@ -327,6 +342,7 @@ void MainWindow::click_ButtonTarjanAlgorithm()
     click_ButtonRankAlgorithm(); // pour l'instant ça fait la meme chose
 }
 
+//----------------- FIN FENETRE SAISIE CLAVIER GRAPHE ORIENTE----------------------//
 
 void MainWindow::afficheFs()
 {
@@ -353,4 +369,5 @@ vector<int> MainWindow::getAps()
 {
     return aps;
 }
+
 

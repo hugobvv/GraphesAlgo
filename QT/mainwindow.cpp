@@ -109,7 +109,7 @@ void MainWindow::click_KeyobardEnterD()
 
 void MainWindow::click_FileEnterD()
 {
-
+    createWindow_FileEnterD();
 }
 
 void MainWindow::click_GraphicEnterD()
@@ -286,8 +286,7 @@ void MainWindow::click_ButtonRankAlgorithm()
     for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
     {
         string V = SuccessorEntries[i]->text().toStdString();
-        while(!(isdigit(V[V.length() - 1]))) // on considere que si il y a des caractères en plus c'est que le mec s'est trompé genre une virgule pas grave
-            V.pop_back();
+
 
         if(!(V.length() == 0))
         {
@@ -304,7 +303,7 @@ void MainWindow::click_ButtonRankAlgorithm()
                     QMessageBox{QMessageBox::Warning, "Erreur de saisie","Le sommet " + QString::fromStdString(to_string(number)) + " n'existe pas." ,QMessageBox::Ok}.exec();
                     return;
                 }
-                if(number == 0)
+                if(number == 0 || !(isdigit(V[V.length() - 1])))
                 {
                     QMessageBox{QMessageBox::Warning, "Erreur de saisie","Un sommet 0 a été saisi ou la saisie a mal été effectuée, vérifiez vos valeurs.\nSi un sommet n'a pas de successeurs, laissez la case vide.", QMessageBox::Ok}.exec();
                     return;
@@ -343,6 +342,151 @@ void MainWindow::click_ButtonTarjanAlgorithm()
 }
 
 //----------------- FIN FENETRE SAISIE CLAVIER GRAPHE ORIENTE----------------------//
+
+
+//----------------- DEBUT FENETRE SAISIE FICHIER GRAPHE ORIENTE----------------------//
+
+void MainWindow::createWindow_FileEnterD()
+{
+    QFileDialog F(nullptr, "Choisir un fichier");
+    F.setNameFilter("Fichiers texte (*.txt)");
+
+
+    if (F.exec() == QDialog::Accepted)
+    {
+        QFile f(F.selectedFiles().first());
+        if(!f.exists())
+        {
+            QMessageBox{QMessageBox::Warning, "Fichier inconnu","Le fichier n'existe pas.", QMessageBox::Ok}.exec();
+            return;
+        }
+        if(!f.fileName().endsWith(".txt"))
+        {
+            QMessageBox{QMessageBox::Warning, "Fichier incompatible","Veuillez choisir un fichier .txt", QMessageBox::Ok}.exec();
+            return;
+        }
+        string tmp1, tmp2;
+        ifstream inputFile(f.fileName().toStdString());
+            if (inputFile.is_open())
+            {
+                string str1, str2;
+                getline(inputFile, str1);
+                getline(inputFile, str2);
+                tmp1 = str1;
+                tmp2 = str2;
+            }
+
+            stringstream ss1(tmp1);
+            string token1;
+            fs.clear();
+            while (getline(ss1, token1, ','))
+            {
+                if(stoi(token1) < 0) // saisie sécurisée puante, il faudrait pouvoir mettre message d'erreur si un des elements du fichier n'est pas entier mais jarrive pas
+                {
+                    fs.clear();
+                    QMessageBox{QMessageBox::Warning, "Fichier corrompu","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
+                    return;
+                }
+                fs.push_back(stoi(token1));
+            }
+
+            stringstream ss2(tmp2);
+            string token2;
+            aps.clear();
+            while (getline(ss2, token2, ','))
+            {
+                if(stoi(token2) < 0) // saisie sécurisée puante, il faudrait pouvoir mettre message d'erreur si un des elements du fichier n'est pas entier mais jarrive pas
+                {
+                    aps.clear();
+                    QMessageBox{QMessageBox::Warning, "Fichier corrompu","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
+                    return;
+                }
+                aps.push_back(stoi(token2));
+            }
+
+
+            string s = "fs : ";
+            for(int i=0; i<static_cast<int>(fs.size());i++)
+                s += to_string(fs[i]) + ", ";
+            s += "\n aps : ";
+            for(int i=0; i<static_cast<int>(aps.size());i++)
+                s += to_string(aps[i]) + ", ";
+
+            choosenFileName = f.fileName().toStdString();
+            createWindow_ChooseAlgorithm();
+
+    }
+
+
+
+    //ensuite faire validation du fichier et si c'est bon ecrire le nom du fichier en bleu "graphe.txt".. en mode azy il est pret
+}
+
+void MainWindow::createWindow_ChooseAlgorithm()
+{
+    resize(400,220);
+    setMinimumSize(400,220);
+    setMaximumSize(400,220);
+    setWindowTitle(tr("Choix de l'algorithme"));
+
+    //NETTOYAGE SINON ANCIENS BOUTONS REVIENNENT
+    menuBar()->clear();
+    auto MainWidget= new QWidget;
+    setCentralWidget(MainWidget);
+
+    auto mainBox = new QVBoxLayout;
+    MainWidget->setLayout(mainBox);
+
+    auto choosenFileLabel= new QLabel{"Fichier séléctionné : "};
+    choosenFileLabel->setFixedHeight(10);
+    mainBox->addWidget(choosenFileLabel, 0, Qt::AlignCenter);
+
+    auto choosenFileLabelLink= new QLabel{QString::fromStdString(choosenFileName)};
+    choosenFileLabelLink->setStyleSheet("color: blue;");
+    QFont font;
+    font.setItalic(true);
+    choosenFileLabelLink->setFont(font);
+    choosenFileLabelLink->setFixedHeight(20);
+    mainBox->addWidget(choosenFileLabelLink, 0, Qt::AlignCenter);
+
+    auto LigneH1 = new QFrame{};
+    LigneH1->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
+    mainBox->addWidget(LigneH1);
+
+    auto infoLabel= new QLabel{tr("Choisissez l'algorithme à utiliser")};
+    mainBox->addWidget(infoLabel, 0, Qt::AlignCenter);
+
+    //MENU
+    auto MenuCancel = menuBar()->addAction("Retour");
+    connect(MenuCancel,&QAction::triggered,this,&MainWindow::click_MenuCancel);
+
+    auto AlgorithmsButtonBox = new QHBoxLayout;
+    mainBox->addLayout(AlgorithmsButtonBox);
+        auto ButtonRankAlgortihm = new QPushButton{tr("Algorithme du RANG")};
+        ButtonRankAlgortihm->setMinimumHeight(40);
+        AlgorithmsButtonBox->addWidget(ButtonRankAlgortihm);
+        //connect(ButtonRankAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonRankAlgorithm);
+
+        auto ButtonTarjanAlgortihm = new QPushButton{tr("Algorithme de TARJAN")};
+        ButtonTarjanAlgortihm->setMinimumHeight(40);
+        AlgorithmsButtonBox->addWidget(ButtonTarjanAlgortihm);
+        //connect(ButtonTarjanAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonTarjanAlgorithm);
+
+        auto tkt = new QPushButton{tr("vasy les autres après")};
+        tkt->setMinimumHeight(40);
+        AlgorithmsButtonBox->addWidget(tkt);
+
+}
+//----------------- FIN FENETRE SAISIE FICHIER GRAPHE ORIENTE----------------------//
+
+
+
+
+
+
+
+
+
 
 void MainWindow::afficheFs()
 {

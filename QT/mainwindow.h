@@ -18,6 +18,10 @@
 #include <QDialog>
 #include <QMessageBox>
 #include <string>
+#include <QtWidgets>
+#include <iostream>
+#include <fstream>
+
 
 using namespace std;
 class QLineEdit;
@@ -49,6 +53,9 @@ private:
                     void click_ButtonRankAlgorithm();
                     void click_ButtonTarjanAlgorithm();
             void click_FileEnterD();
+                void createWindow_FileEnterD();
+                    string choosenFileName;
+                    void createWindow_ChooseAlgorithm();
             void click_GraphicEnterD();
         void click_UndirectedGraphButton();
            void createWindow_UndirectedGraph();

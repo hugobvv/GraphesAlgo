@@ -2,9 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include<QMenuBar>
+#include <QMenuBar>
 #include <QCloseEvent>
-#include<QFile>
+#include <QFile>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -21,7 +21,7 @@
 #include <QtWidgets>
 #include <iostream>
 #include <fstream>
-
+#include <stdexcept>
 
 using namespace std;
 class QLineEdit;
@@ -56,6 +56,7 @@ private:
                 void createWindow_FileEnterD();
                     string choosenFileName;
                     void createWindow_ChooseAlgorithm();
+                        void click_cout(); // s'occupe de check la 3e ligne du fichier
             void click_GraphicEnterD();
         void click_UndirectedGraphButton();
            void createWindow_UndirectedGraph();

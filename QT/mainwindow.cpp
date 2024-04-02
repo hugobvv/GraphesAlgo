@@ -365,45 +365,51 @@ void MainWindow::createWindow_FileEnterD()
             QMessageBox{QMessageBox::Warning, "Fichier incompatible","Veuillez choisir un fichier .txt", QMessageBox::Ok}.exec();
             return;
         }
-        string tmp1, tmp2;
+        string str1, str2;
         ifstream inputFile(f.fileName().toStdString());
-            if (inputFile.is_open())
-            {
-                string str1, str2;
-                getline(inputFile, str1);
-                getline(inputFile, str2);
-                tmp1 = str1;
-                tmp2 = str2;
-            }
 
-            stringstream ss1(tmp1);
-            string token1;
-            fs.clear();
-            while (getline(ss1, token1, ','))
-            {
-                if(stoi(token1) < 0) // saisie sécurisée puante, il faudrait pouvoir mettre message d'erreur si un des elements du fichier n'est pas entier mais jarrive pas
-                {
-                    fs.clear();
-                    QMessageBox{QMessageBox::Warning, "Fichier corrompu","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
-                    return;
-                }
-                fs.push_back(stoi(token1));
-            }
+        if (inputFile.is_open())
+        {
+            getline(inputFile, str1);
+            getline(inputFile, str2);
+        }
+        replace(str1.begin(), str1.end(), ' ', ',');
+        replace(str2.begin(), str2.end(), ' ', ',');
 
-            stringstream ss2(tmp2);
-            string token2;
-            aps.clear();
-            while (getline(ss2, token2, ','))
-            {
-                if(stoi(token2) < 0) // saisie sécurisée puante, il faudrait pouvoir mettre message d'erreur si un des elements du fichier n'est pas entier mais jarrive pas
-                {
-                    aps.clear();
-                    QMessageBox{QMessageBox::Warning, "Fichier corrompu","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
-                    return;
-                }
-                aps.push_back(stoi(token2));
-            }
+        stringstream ss1(str1);
+        fs.clear();
 
+        int number;
+        char separateur;
+        while(!ss1.eof())
+        {
+            if(!(ss1 >> number))
+            {
+                fs.clear();
+                QMessageBox{QMessageBox::Warning, "Fichier corrompu","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
+                return;
+            }
+            ss1 >> separateur;
+            fs.push_back(number);
+        }
+
+        stringstream ss2(str2);
+        aps.clear();
+
+        while(!ss2.eof())
+        {
+            if(!(ss2 >> number))
+            {
+                aps.clear();
+                qInfo() << QString::fromStdString(str2);
+                QMessageBox{QMessageBox::Warning, "Fichier corrompu bite","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
+                return;
+            }
+            else
+                qInfo() << number;
+            ss2 >> separateur;
+            aps.push_back(number);
+        }
 
             string s = "fs : ";
             for(int i=0; i<static_cast<int>(fs.size());i++)
@@ -414,19 +420,14 @@ void MainWindow::createWindow_FileEnterD()
 
             choosenFileName = f.fileName().toStdString();
             createWindow_ChooseAlgorithm();
-
     }
-
-
-
-    //ensuite faire validation du fichier et si c'est bon ecrire le nom du fichier en bleu "graphe.txt".. en mode azy il est pret
 }
 
 void MainWindow::createWindow_ChooseAlgorithm()
 {
-    resize(400,220);
-    setMinimumSize(400,220);
-    setMaximumSize(400,220);
+    resize(600,220);
+    setMinimumSize(600,220);
+    setMaximumSize(600,220);
     setWindowTitle(tr("Choix de l'algorithme"));
 
     //NETTOYAGE SINON ANCIENS BOUTONS REVIENNENT
@@ -476,7 +477,32 @@ void MainWindow::createWindow_ChooseAlgorithm()
         tkt->setMinimumHeight(40);
         AlgorithmsButtonBox->addWidget(tkt);
 
+        auto cout = new QPushButton{tr("Algo ou il faut un cout")};
+        cout->setMinimumHeight(40);
+        AlgorithmsButtonBox->addWidget(cout);
+        connect(cout, &QPushButton::clicked, this, &MainWindow::click_cout);
+
 }
+
+void MainWindow::click_cout()
+{
+    ifstream inputFile(choosenFileName);
+    string str3;
+    if (inputFile.is_open())
+        for(int i=0; i<3; i++)
+            getline(inputFile, str3); // j'ai pas la moindre idée d'a quoi ressemblerait une matrice de cout dans un fichier
+
+    //replace(str3.begin(), str3.end(), ' ', ',');
+
+    //stringstream ss3(str3);
+
+            QMessageBox{QMessageBox::Warning, "Fichier incompatible","Le fichier choisi ne possède pas de matrice des coûts.", QMessageBox::Ok}.exec();
+            //QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas correctement écrite..", QMessageBox::Ok}.exec();
+
+}
+
+
+
 //----------------- FIN FENETRE SAISIE FICHIER GRAPHE ORIENTE----------------------//
 
 

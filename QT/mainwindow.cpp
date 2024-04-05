@@ -191,8 +191,8 @@ void MainWindow::createWindow_KeyobardEnterD(int NA)
     for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
         SuccessorEntries[i]= new QLineEdit{""};
 
-    setMinimumHeight(220+(NA/2.0)*53);
-    setMaximumHeight(220+(NA/2.0)*53);
+    setMinimumSize(600,350+(NA/2.0)*53);
+    setMaximumSize(600,350+(NA/2.0)*53);
     setWindowTitle(tr("Saisie au clavier d'un graphe orienté"));
 
     //NETTOYAGE SINON ANCIENS BOUTONS REVIENNENT
@@ -203,6 +203,7 @@ void MainWindow::createWindow_KeyobardEnterD(int NA)
     //CREATION DE BOX ET BOUTONS
     auto mainBox = new QVBoxLayout;
     MainWidget->setLayout(mainBox);
+
 
     auto NodesAmountChoiceBox = new QHBoxLayout;
     mainBox->addLayout(NodesAmountChoiceBox);
@@ -224,25 +225,64 @@ void MainWindow::createWindow_KeyobardEnterD(int NA)
     LigneH->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
     mainBox->addWidget(LigneH);
 
-    auto AlgorithmsButtonBox = new QHBoxLayout;
+    auto AlgorithmsButtonBox = new QVBoxLayout;
     mainBox->addLayout(AlgorithmsButtonBox);
-        auto ButtonRankAlgortihm = new QPushButton{tr("Algorithme du RANG")};
-        ButtonRankAlgortihm->setMinimumHeight(40);
-        AlgorithmsButtonBox->addWidget(ButtonRankAlgortihm);
-        connect(ButtonRankAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonRankAlgorithm);
 
-        auto ButtonTarjanAlgortihm = new QPushButton{tr("Algorithme de TARJAN")};
-        ButtonTarjanAlgortihm->setMinimumHeight(40);
-        AlgorithmsButtonBox->addWidget(ButtonTarjanAlgortihm);
-        connect(ButtonTarjanAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonTarjanAlgorithm);
 
-        auto tkt = new QPushButton{tr("vasy les autres après")};
-        tkt->setMinimumHeight(40);
-        AlgorithmsButtonBox->addWidget(tkt);
+        auto AlgorithmsButtonLayer1 = new QHBoxLayout;
+        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer1);
+
+            auto ButtonRankAlgortihm = new QPushButton{tr("Algorithme du RANG")};
+            ButtonRankAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer1->addWidget(ButtonRankAlgortihm);
+
+            auto ButtonTarjanAlgortihm = new QPushButton{tr("Algorithme de TARJAN")};
+            ButtonTarjanAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer1->addWidget(ButtonTarjanAlgortihm);
+
+
+        auto AlgorithmsButtonLayer2 = new QHBoxLayout;
+        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer2);
+
+            auto ButtonSchedulingAlgortihm = new QPushButton{tr("Algorithme de l'ORDONNANCEMENT")};
+            ButtonSchedulingAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer2->addWidget(ButtonSchedulingAlgortihm);
+
+            auto ButtonDantzigAlgortihm = new QPushButton{tr("Algorithme de DANTZIG")};
+            ButtonDantzigAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer2->addWidget(ButtonDantzigAlgortihm);
+
+            auto ButtonDijkstraAlgortihm = new QPushButton{tr("Algorithme de DIJKSTRA")};
+            ButtonDijkstraAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer2->addWidget(ButtonDijkstraAlgortihm);
+
+
+        auto AlgorithmsButtonLayer3 = new QHBoxLayout;
+        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer3);
+
+            auto ButtonKruskalAlgortihm = new QPushButton{tr("Algorithme de KRUSKAL")};
+            ButtonKruskalAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer3->addWidget(ButtonKruskalAlgortihm);
+
+            auto ButtonPruferAlgortihm = new QPushButton{tr("Algorithme de PRÜFER")};
+            ButtonPruferAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer3->addWidget(ButtonPruferAlgortihm);
 
     auto LigneH2 = new QFrame{};
     LigneH2->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
     mainBox->addWidget(LigneH2);
+
+    auto ButtonAddMatrix = new QPushButton{tr("Ajouter une matrice de coûts")};
+    ButtonAddMatrix->setMinimumHeight(30);
+    QFont font;
+    ButtonAddMatrix->setFont(font);
+    ButtonAddMatrix->setStyleSheet("color: Green");
+    mainBox->addWidget(ButtonAddMatrix);
+    connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::click_ButtonAddMatrix);
+
+    auto LigneH4 = new QFrame{};
+    LigneH4->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
+    mainBox->addWidget(LigneH4);
 
     auto HelpLabel = new QLabel{tr("Saisissez le nombre de successeurs de chaque sommet respectif : \n [Exemple] : 4,8,9,14")};
     mainBox->addWidget(HelpLabel, 0, Qt::AlignCenter);
@@ -341,6 +381,101 @@ void MainWindow::click_ButtonTarjanAlgorithm()
     click_ButtonRankAlgorithm(); // pour l'instant ça fait la meme chose
 }
 
+void MainWindow::click_ButtonAddMatrix()
+{
+    if(NodesAmountValue > 0)
+    {
+        setWindowTitle("Saisie de la matrice des coûts");
+        setMinimumSize(80+NodesAmountValue*50,NodesAmountValue*50);
+        setMaximumSize(80+NodesAmountValue*50,NodesAmountValue*50);
+
+        menuBar()->clear();
+        auto MainWidget= new QWidget;
+        setCentralWidget(MainWidget);
+
+        auto mainBox = new QHBoxLayout;
+        MainWidget->setLayout(mainBox);
+
+        auto matrixBox = new QGridLayout;
+        mainBox->addLayout(matrixBox);
+
+        for (int i = 1; i <= NodesAmountValue; ++i)
+        {
+            auto tmpLabel= new QLabel{QString::number(i)};
+            tmpLabel->setStyleSheet("color: blue;");
+            matrixBox->addWidget(tmpLabel, 0, i, Qt::AlignCenter);
+        }
+        for (int i = 1; i <= NodesAmountValue; ++i)
+        {
+            auto tmpLabel= new QLabel{QString::number(i)};
+            tmpLabel->setStyleSheet("color: blue;");
+            matrixBox->addWidget(tmpLabel, i, 0, Qt::AlignCenter);
+        }
+
+
+        TaskCostEntries.resize(NodesAmountValue+1);
+        TaskCostValues.resize(NodesAmountValue+1);
+        for (int i = 1; i <= NodesAmountValue; ++i)
+        {
+            TaskCostEntries[i].resize(NodesAmountValue+1);
+            TaskCostValues[i].resize(NodesAmountValue+1);
+            for (int j = 1; j <= NodesAmountValue; ++j)
+            {
+                QLineEdit *lineEdit = new QLineEdit;
+                TaskCostEntries[i][j] = lineEdit;
+                lineEdit->setFixedSize(35, 35);
+                lineEdit->setAlignment(Qt::AlignCenter);
+                matrixBox->addWidget(lineEdit, i, j);
+                TaskCostValues[i][j] = lineEdit->text().toInt();
+            }
+        }
+
+        auto LigneH1 = new QFrame{};
+        LigneH1->setFrameStyle(QFrame::VLine | QFrame :: Sunken);
+        mainBox->addWidget(LigneH1);
+
+        auto ButtonsBox = new QVBoxLayout;
+        mainBox->addLayout(ButtonsBox);
+
+            auto ButtonSave = new QPushButton{tr("Enregistrer")};
+            ButtonSave->setMinimumHeight((NodesAmountValue*50)/2 - 10);
+            ButtonsBox->addWidget(ButtonSave);
+            connect(ButtonSave, &QPushButton::clicked, this,&MainWindow::SaveTaskCostEntries);
+
+            auto ButtonCancel = new QPushButton{tr("Annuler")};
+            ButtonCancel->setMinimumHeight((NodesAmountValue*50)/2 - 10);
+            ButtonsBox->addWidget(ButtonCancel);
+            connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyobardEnterD(NodesAmountValue);});
+
+    }
+    else
+    {
+        QMessageBox{QMessageBox::Warning, "Nombre de sommets vide","Votre nombre de sommets est vide.", QMessageBox::Ok}.exec();
+        return;
+    }
+}
+
+void MainWindow::SaveTaskCostEntries()
+{
+     for (int i = 1; i <= NodesAmountValue; ++i)
+     {
+         for (int j = 1; j <= NodesAmountValue; ++j)
+         {
+            stringstream ss(TaskCostEntries[i][j]->text().toStdString());
+            int number;
+            if(ss >> number)
+                TaskCostValues[i][j] = TaskCostEntries[i][j]->text().toInt();
+            else
+                TaskCostValues[i][j] = -9999;
+         }
+     }
+     QMessageBox{QMessageBox::Information,"Matrice des coûts","La matrice des coûts a été enregistrée avec succès.", QMessageBox::Ok}.exec();
+     createWindow_KeyobardEnterD(NodesAmountValue);
+     //faire en sorte que ça oublie pas tout
+}
+
+
+
 //----------------- FIN FENETRE SAISIE CLAVIER GRAPHE ORIENTE----------------------//
 
 
@@ -401,12 +536,9 @@ void MainWindow::createWindow_FileEnterD()
             if(!(ss2 >> number))
             {
                 aps.clear();
-                qInfo() << QString::fromStdString(str2);
                 QMessageBox{QMessageBox::Warning, "Fichier corrompu bite","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
                 return;
             }
-            else
-                qInfo() << number;
             ss2 >> separateur;
             aps.push_back(number);
         }
@@ -425,9 +557,9 @@ void MainWindow::createWindow_FileEnterD()
 
 void MainWindow::createWindow_ChooseAlgorithm()
 {
-    resize(600,220);
-    setMinimumSize(600,220);
-    setMaximumSize(600,220);
+    resize(650,300);
+    setMinimumSize(650,300);
+    setMaximumSize(650,300);
     setWindowTitle(tr("Choix de l'algorithme"));
 
     //NETTOYAGE SINON ANCIENS BOUTONS REVIENNENT
@@ -461,44 +593,106 @@ void MainWindow::createWindow_ChooseAlgorithm()
     auto MenuCancel = menuBar()->addAction("Retour");
     connect(MenuCancel,&QAction::triggered,this,&MainWindow::click_MenuCancel);
 
-    auto AlgorithmsButtonBox = new QHBoxLayout;
+    auto AlgorithmsButtonBox = new QVBoxLayout;
     mainBox->addLayout(AlgorithmsButtonBox);
-        auto ButtonRankAlgortihm = new QPushButton{tr("Algorithme du RANG")};
-        ButtonRankAlgortihm->setMinimumHeight(40);
-        AlgorithmsButtonBox->addWidget(ButtonRankAlgortihm);
-        //connect(ButtonRankAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonRankAlgorithm);
 
-        auto ButtonTarjanAlgortihm = new QPushButton{tr("Algorithme de TARJAN")};
-        ButtonTarjanAlgortihm->setMinimumHeight(40);
-        AlgorithmsButtonBox->addWidget(ButtonTarjanAlgortihm);
-        //connect(ButtonTarjanAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonTarjanAlgorithm);
 
-        auto tkt = new QPushButton{tr("vasy les autres après")};
-        tkt->setMinimumHeight(40);
-        AlgorithmsButtonBox->addWidget(tkt);
+        auto AlgorithmsButtonLayer1 = new QHBoxLayout;
+        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer1);
 
-        auto cout = new QPushButton{tr("Algo ou il faut un cout")};
-        cout->setMinimumHeight(40);
-        AlgorithmsButtonBox->addWidget(cout);
-        connect(cout, &QPushButton::clicked, this, &MainWindow::click_cout);
+            auto ButtonRankAlgortihm = new QPushButton{tr("Algorithme du RANG")};
+            ButtonRankAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer1->addWidget(ButtonRankAlgortihm);
+            //connect(ButtonRankAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonRankAlgorithm);
 
+            auto ButtonTarjanAlgortihm = new QPushButton{tr("Algorithme de TARJAN")};
+            ButtonTarjanAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer1->addWidget(ButtonTarjanAlgortihm);
+            //connect(ButtonTarjanAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonTarjanAlgorithm);
+
+
+        auto AlgorithmsButtonLayer2 = new QHBoxLayout;
+        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer2);
+
+            auto ButtonSchedulingAlgortihm = new QPushButton{tr("Algorithme de l'ORDONNANCEMENT")};
+            ButtonSchedulingAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer2->addWidget(ButtonSchedulingAlgortihm);
+
+            auto ButtonDantzigAlgortihm = new QPushButton{tr("Algorithme de DANTZIG")};
+            ButtonDantzigAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer2->addWidget(ButtonDantzigAlgortihm);
+            connect(ButtonDantzigAlgortihm, &QPushButton::clicked, this, &MainWindow::Check_TaskCost);
+
+            auto ButtonDijkstraAlgortihm = new QPushButton{tr("Algorithme de DIJKSTRA")};
+            ButtonDijkstraAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer2->addWidget(ButtonDijkstraAlgortihm);
+            connect(ButtonDijkstraAlgortihm, &QPushButton::clicked, this, &MainWindow::Check_TaskCost);
+
+
+        auto AlgorithmsButtonLayer3 = new QHBoxLayout;
+        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer3);
+
+            auto ButtonKruskalAlgortihm = new QPushButton{tr("Algorithme de KRUSKAL")};
+            ButtonKruskalAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer3->addWidget(ButtonKruskalAlgortihm);
+
+            auto ButtonPruferAlgortihm = new QPushButton{tr("Algorithme de PRÜFER")};
+            ButtonPruferAlgortihm->setMinimumHeight(40);
+            AlgorithmsButtonLayer3->addWidget(ButtonPruferAlgortihm);
+
+
+
+        //rang, tarjan, ordonneancembnt, dantzig, dikstra, kruskhal, prufer
 }
 
-void MainWindow::click_cout()
+void MainWindow::Check_TaskCost()
 {
     ifstream inputFile(choosenFileName);
     string str3;
     if (inputFile.is_open())
-        for(int i=0; i<3; i++)
-            getline(inputFile, str3); // j'ai pas la moindre idée d'a quoi ressemblerait une matrice de cout dans un fichier
+        for(int i=0; i<2; i++)
+            getline(inputFile, str3);
 
-    //replace(str3.begin(), str3.end(), ' ', ',');
+    vector<vector<int>> TaskCost(fs[0],vector<int>(fs[0], 0));
 
-    //stringstream ss3(str3);
+    for(int i=0; i<fs[0]; i++)
+    {
+        replace(str3.begin(), str3.end(), ' ', ',');
+        getline(inputFile, str3);
 
-            QMessageBox{QMessageBox::Warning, "Fichier incompatible","Le fichier choisi ne possède pas de matrice des coûts.", QMessageBox::Ok}.exec();
-            //QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas correctement écrite..", QMessageBox::Ok}.exec();
 
+        stringstream ssTMP(str3);
+        vector<int> T;
+        int number=0;
+        char separateur;
+        while(!ssTMP.eof())
+        {
+            if(!(ssTMP >> number) || number < -1)
+            {
+                QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas correctement écrite ou n'existe pas.", QMessageBox::Ok}.exec();
+                TaskCost.clear();
+                return;
+            }
+            T.push_back(number);
+            ssTMP >> separateur;
+        }
+
+        if(static_cast<int>(T.size()) != fs[0])
+        {
+            QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas adaptée au graphe du même fichier ou n'existe pas", QMessageBox::Ok}.exec();
+            TaskCost.clear();
+            return;
+        }
+
+        if(inputFile.eof() && i != fs[0]-1)
+        {
+            QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas complète.", QMessageBox::Ok}.exec();
+            TaskCost.clear();
+            return;
+        }
+
+        TaskCost[i] = T;
+    }
 }
 
 

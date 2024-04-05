@@ -22,6 +22,9 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <QGridLayout>
+#include <QWidget>
+
 
 using namespace std;
 class QLineEdit;
@@ -46,17 +49,23 @@ private:
             void click_KeyobardEnterD();
                 void createWindow_KeyobardEnterD(int NA); // NA = Nodes Amount = nombre de noeuds / sommets
                     QSpinBox* NodesAmountSpinBox;
-                    int NodesAmountValue;
+                    int NodesAmountValue=0;
                     vector<QLineEdit*> SuccessorEntries;
                     vector<int> fs;
                     vector <int> aps;
                     void click_ButtonRankAlgorithm();
                     void click_ButtonTarjanAlgorithm();
+                    // les autres
+                    void click_ButtonAddMatrix();
+                        vector<vector<QLineEdit*>> TaskCostEntries;
+                        vector<vector<int>> TaskCostValues;
+                        void SaveTaskCostEntries();
             void click_FileEnterD();
                 void createWindow_FileEnterD();
                     string choosenFileName;
                     void createWindow_ChooseAlgorithm();
-                        void click_cout(); // s'occupe de check la 3e ligne du fichier
+                        void Check_TaskCost();
+                            vector<vector<int>> TaskCost;
             void click_GraphicEnterD();
         void click_UndirectedGraphButton();
            void createWindow_UndirectedGraph();

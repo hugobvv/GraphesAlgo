@@ -4,7 +4,7 @@
 #include "algorithms.h"
 using namespace std;
 
-algorithms::algorithms(const graph &g): d_g{g}, d_pilch{new int[g.getAps(0)+1]} 
+algorithms::algorithms(const graph &g): d_g{g}, d_pilch{new int[g.getAps(0)+1]}, d_numCfc{0}
 {
 	d_pilch[0] = 0;
 }
@@ -13,6 +13,7 @@ void algorithms::rang(int *&rang)
 {
 	int n = d_g.getAps(0), s, k,h,t;
 	rang = new int[n+1];
+	rang[0] = n+1;
 	int *ddi= calculateDDI();
 	int *prem= new int[n+1];
     
@@ -54,7 +55,6 @@ void algorithms::traversee(int s, TarjanData &td)
 {
 	/* Determination des CFC des successeurs de s */
 	int t;
-	int numCfc=0;
 	td.index++;
 	td.num[s] = td.index; 
 	td.ro[s] = td.index;	 	 // numérote s et initialise ro[s]
@@ -73,7 +73,7 @@ void algorithms::traversee(int s, TarjanData &td)
 	}
 	if (td.ro[s] == td.num[s])
 	{
-		numCfc++;
+		d_numCfc++;
 		int sommetPile;
 		do
 		{	 	 	 	 	 	 	 	 	 // Z3
@@ -81,11 +81,12 @@ void algorithms::traversee(int s, TarjanData &td)
             td.pileTarj.pop();
 			td.enTarj[sommetPile] = false;
 			empiler(sommetPile);
-			td.CFC[sommetPile] = numCfc;
+			td.CFC[sommetPile] = d_numCfc;
 		} while (sommetPile != s);
 		td.prem.push_back(d_pilch[0]);
 		d_pilch[0] = 0;
 	}
+	td.CFC[0] = d_g.getAps(0);
 }
 
 void algorithms::fortConnexe(int*&prem, int*&CFC)
@@ -94,6 +95,7 @@ void algorithms::fortConnexe(int*&prem, int*&CFC)
 	int n = d_g.getAps(0);
 	TarjanData data(n);
 	d_pilch[0] = 0;
+	d_numCfc=0;
 
 	for(int s = 1; s<=n; s++)
 		if (data.num[s] == 0) traversee(s, data);
@@ -101,6 +103,7 @@ void algorithms::fortConnexe(int*&prem, int*&CFC)
 	/* Recopie afin de garder uniquement les élements utiles (prem et CFC) */
 	prem = new int [n+1];
 	CFC = new int[n+1];
+
 	for (int i=1; i<=n; i++)
 	{
 		prem[i]=data.prem[i-1];

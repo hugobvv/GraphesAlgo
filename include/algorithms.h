@@ -5,6 +5,8 @@
 #include <stack>
 #include "graph.h"
 
+/* ALGORITHMES DU RANG ET DE TARJAN */
+
 struct TarjanData 
 {
     /* Données pour l'algorithme de Tarjan */
@@ -45,7 +47,6 @@ struct TarjanData
 
 class algorithms
 {
-    /* ALGORITHMES DU RANG ET DE TARJAN */
 public:
     /* Constructor */
     algorithms(const graph &g);
@@ -68,6 +69,7 @@ private:
     /* Datas */
     int* d_pilch;
     graph d_g;
+    int d_numCfc;
 };
 
 #endif //__ALGORITHMS_H__

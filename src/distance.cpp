@@ -9,7 +9,7 @@ void distance::Dikjstra(int s, int *&dist, int *&pred)
     /* @return tableau distance et tableau predécesseurs depuis s*/
 
     int ind; /* nombre d'elements qui restent a traiter */
-    int i, j, k, v, m;
+    int i, j, k, v;
     int n = d_g.getAps(0);
     int m = d_g.getFs(0);
     pred = new int[n+1];

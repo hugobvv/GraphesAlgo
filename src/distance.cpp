@@ -3,10 +3,25 @@
 distance::distance (const graph &g, const vector<vector<int>> &cout) : d_g{g}, d_cout{cout}
 {}
 
-void distance::Dikjstra(int s, int *&dist, int *&pred)
+int distance::getCout(int i, int j) const
+{
+    return d_cout[i][j];
+}
+
+bool distance::positiveCosts() const
+{
+    for (int i=1; i<=d_cout.size(); i++)
+        for (int j=1; j<=d_cout.size(); j++)
+            if (d_cout[i][j] < 0)
+                return false;
+    return true;
+}
+
+void distance::Dikjstra(int s, int *&dist, int *&pred) const
 {
     /* Algorithme de Dikjstra pour le sommet s */
     /* @return tableau distance et tableau predécesseurs depuis s*/
+    /* les coûts sont >= 0 */
 
     int ind; /* nombre d'elements qui restent a traiter */
     int i, j, k, v;
@@ -59,13 +74,49 @@ void distance::Dikjstra(int s, int *&dist, int *&pred)
 }
 
 
-void distance::Dikjstra(int **&dist, int **&pred)
+void distance::Dikjstra(int **&dist, int **&pred) const
 {
     /* Algorithme de Dikjstra pour tous les sommets */
     /* @return matrice distance et matrice predécesseurs */
-    int n = d_g.getAps(0);
-    dist = new int* [n+1];
-    pred = new int* [n+1];
-    for (int s=1; s<=n; s++)
-        Dikjstra(s, dist[s], pred[s]);
+
+    if (positiveCosts())
+    {
+        int n = d_g.getAps(0);
+        dist = new int* [n+1];
+        pred = new int* [n+1];
+        for (int s=1; s<=n; s++)
+            Dikjstra(s, dist[s], pred[s]);
+    }
+    else
+        cout<<"Les cooûts doivent être positifs pour appliquer l'algorithme de Dikjstra";
+    
+}
+
+void distance::Dantzig()
+{
+    /* Modifie la matrice des couts en trouvant les chemins les plus courts */
+    /* Les coûts peuvent être négatifs */
+    int x;
+    for (int k=1; k<d_cout.size(); k++)
+    {
+        for (int i=1; i<=k; i++)
+        {
+            for (int j=1; j<=k; j++)
+                if((x = d_cout[i][j] + d_cout[j][k+1]) < d_cout[i][k+1])
+                    d_cout[i][k+1] = x;
+            for (int j=1; j<=k; j++)
+                if((x = d_cout[k+1][j] + d_cout[j][i]) < d_cout[k+1][i])
+                    d_cout[k+1][i] = x;
+            if (d_cout[i][k+1] + d_cout[k+1][i] < 0)
+            {
+                cout<<"Existence d'un circuit absorbant passant par les sommets ";
+                cout<< i << " et " << k+1;
+                return;
+            }
+        }
+        for (int i=1; i<=k; i++)
+            for (int j=1; j<=k; j++)
+                if ((x = d_cout[i][k+1]+d_cout[k+1][j]) < d_cout[i][j])
+                    d_cout[i][j] = x;
+    }
 }

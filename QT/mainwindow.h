@@ -39,6 +39,7 @@ public:
     ~MainWindow();
     vector<int> getFs();
     vector<int> getAps();
+    vector<vector<int>>getTaskCostMatrix();
 private:
     // oui maman donne moi les gros attributs plein de lait
 
@@ -50,7 +51,9 @@ private:
                 void createWindow_KeyobardEnterD(int NA); // NA = Nodes Amount = nombre de noeuds / sommets
                     QSpinBox* NodesAmountSpinBox;
                     int NodesAmountValue=0;
-                    vector<QLineEdit*> SuccessorEntries;
+                    vector<QLineEdit*> SuccessorEntries; //attention rien à l'indice 0
+                    vector<string> SuccessorEntriesValues; //attention rien à l'indice 0
+                    void saveSuccessorEntries();
                     vector<int> fs;
                     vector <int> aps;
                     void click_ButtonRankAlgorithm();

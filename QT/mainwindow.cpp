@@ -191,6 +191,10 @@ void MainWindow::createWindow_KeyobardEnterD(int NA)
     for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
         SuccessorEntries[i]= new QLineEdit{""};
 
+    if(SuccessorEntriesValues.size()!=0)
+        for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
+                SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
+
     setMinimumSize(600,350+(NA/2.0)*53);
     setMaximumSize(600,350+(NA/2.0)*53);
     setWindowTitle(tr("Saisie au clavier d'un graphe orienté"));
@@ -278,6 +282,7 @@ void MainWindow::createWindow_KeyobardEnterD(int NA)
     ButtonAddMatrix->setFont(font);
     ButtonAddMatrix->setStyleSheet("color: Green");
     mainBox->addWidget(ButtonAddMatrix);
+    connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::saveSuccessorEntries);
     connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::click_ButtonAddMatrix);
 
     auto LigneH4 = new QFrame{};
@@ -312,6 +317,7 @@ void MainWindow::click_MenuCancel()
 
 void MainWindow::NodesAmountValueChanged(int value)
 {
+    saveSuccessorEntries();
     NodesAmountValue = value;
 }
 
@@ -471,7 +477,17 @@ void MainWindow::SaveTaskCostEntries()
      }
      QMessageBox{QMessageBox::Information,"Matrice des coûts","La matrice des coûts a été enregistrée avec succès.", QMessageBox::Ok}.exec();
      createWindow_KeyobardEnterD(NodesAmountValue);
-     //faire en sorte que ça oublie pas tout
+}
+
+
+void MainWindow::saveSuccessorEntries()
+{
+    SuccessorEntriesValues.clear();
+    SuccessorEntriesValues.push_back("#");
+    for(int i=1; i<SuccessorEntries.size(); i++)
+    {
+        SuccessorEntriesValues.push_back(SuccessorEntries[i]->text().toStdString());
+    }
 }
 
 
@@ -667,7 +683,7 @@ void MainWindow::Check_TaskCost()
         char separateur;
         while(!ssTMP.eof())
         {
-            if(!(ssTMP >> number) || number < -1)
+            if(!(ssTMP >> number))
             {
                 QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas correctement écrite ou n'existe pas.", QMessageBox::Ok}.exec();
                 TaskCost.clear();
@@ -693,6 +709,9 @@ void MainWindow::Check_TaskCost()
 
         TaskCost[i] = T;
     }
+
+    for(int i=0; i< TaskCost.size(); i++)
+        qInfo() << TaskCost[i];
 }
 
 
@@ -734,4 +753,7 @@ vector<int> MainWindow::getAps()
     return aps;
 }
 
-
+vector<vector<int>> MainWindow::getTaskCostMatrix()
+{
+    return TaskCostValues;
+}

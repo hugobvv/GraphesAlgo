@@ -24,7 +24,7 @@
 #include <stdexcept>
 #include <QGridLayout>
 #include <QWidget>
-
+#include "graph.h"
 
 using namespace std;
 class QLineEdit;
@@ -40,14 +40,14 @@ public:
     vector<int> getFs();
     vector<int> getAps();
     vector<vector<int>>getTaskCostMatrix();
-private:
-    // oui maman donne moi les gros attributs plein de lait
 
+private:
 
      void createMainWindow();
         void click_DirectedGraphButton();
             void createWindow_DirectedGraph();
             void click_KeyobardEnterD();
+                graph genGraph();
                 void createWindow_KeyobardEnterD(int NA); // NA = Nodes Amount = nombre de noeuds / sommets
                     QSpinBox* NodesAmountSpinBox;
                     int NodesAmountValue=0;
@@ -81,8 +81,6 @@ private:
 
         void afficheFs();
         void afficheAps();
-
-
 
 private slots:
     void click_MenuTotalCancel();

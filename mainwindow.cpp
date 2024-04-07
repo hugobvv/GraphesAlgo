@@ -1,4 +1,6 @@
 #include "mainwindow.h"
+#include "graph.h"
+#include "algorithms.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -122,6 +124,64 @@ void MainWindow::click_MenuTotalCancel()
     createMainWindow();
 }
 
+graph MainWindow::genGraph()
+{
+    /* Génère le graphe courant */
+
+    if (fs.size() == 0) // si le graphe n'a pas été encore généré
+    {
+        fs.clear();
+        fs.push_back(0); // initialiser la premiere case à 0 (nbr de cases du tableau fs)
+        aps.clear();
+        aps.push_back(0);
+
+        for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
+        {
+            string V = SuccessorEntries[i]->text().toStdString();
+
+
+            if(!(V.length() == 0))
+            {
+                vector<int> tmp;
+                stringstream ss(V);
+                while (ss.good())
+                {
+                    int number;
+                    char delimiter;
+                    ss >> number >> delimiter;
+
+                    if(number > static_cast<int>(SuccessorEntries.size())-1 || number < 0) // saisie securisée, j'ai pas mis que le delimiteur doit etre obligatoirement "," mais az ptetre à faire
+                    {
+                        QMessageBox{QMessageBox::Warning, "Erreur de saisie","Le sommet " + QString::fromStdString(to_string(number)) + " n'existe pas." ,QMessageBox::Ok}.exec();
+                        return graph({},{},{});
+                    }
+                    if(number == 0 || !(isdigit(V[V.length() - 1])))
+                    {
+                        QMessageBox{QMessageBox::Warning, "Erreur de saisie","Un sommet 0 a été saisi ou la saisie a mal été effectuée, vérifiez vos valeurs.\nSi un sommet n'a pas de successeurs, laissez la case vide.", QMessageBox::Ok}.exec();
+                        return graph({},{},{});
+                    }
+
+                    tmp.push_back(number);
+                }
+                for(int n : tmp)
+                    fs.push_back(n);
+            }
+            fs.push_back(0);
+        }
+        fs[0] = fs.size()-1;
+
+        aps.push_back(1);
+        for(int i=1; i<static_cast<int>(fs.size()); i++) // remplir aps à partir de fs
+        {
+            if(fs[i] == 0 && i+1 < static_cast<int>(fs.size()))
+                aps.push_back(i+1);
+        }
+        aps[0] = aps.size()-1;
+    }
+    vector<string> info = {};
+    return graph(fs,aps,info,true);
+}
+
 //----------------- FIN FENETRE GRAPHE ORIENTE----------------------//
 
 
@@ -239,10 +299,12 @@ void MainWindow::createWindow_KeyobardEnterD(int NA)
             auto ButtonRankAlgortihm = new QPushButton{tr("Algorithme du RANG")};
             ButtonRankAlgortihm->setMinimumHeight(40);
             AlgorithmsButtonLayer1->addWidget(ButtonRankAlgortihm);
+            connect(ButtonRankAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonRankAlgorithm);
 
             auto ButtonTarjanAlgortihm = new QPushButton{tr("Algorithme de TARJAN")};
             ButtonTarjanAlgortihm->setMinimumHeight(40);
             AlgorithmsButtonLayer1->addWidget(ButtonTarjanAlgortihm);
+            connect(ButtonTarjanAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonTarjanAlgorithm);
 
 
         auto AlgorithmsButtonLayer2 = new QHBoxLayout;
@@ -323,68 +385,41 @@ void MainWindow::NodesAmountValueChanged(int value)
 
 void MainWindow::click_ButtonRankAlgorithm()
 {
-    fs.clear();
-    fs.push_back(0); // initialiser la premiere case à 0 (nbr de cases du tableau fs)
-    aps.clear();
-    aps.push_back(0);
+    /* Algorithme du rang */
 
+    graph g = genGraph();
+    int *rang;
+    algorithms algo = algorithms(g);
+    algo.rang(rang);
 
-    for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
-    {
-        string V = SuccessorEntries[i]->text().toStdString();
+    string s = "";
+    for (int i=1; i<=aps[0]; i++)
+        s+= "rang(" + to_string(i) + ") = " + to_string(rang[i]) + "\n";
 
-
-        if(!(V.length() == 0))
-        {
-            vector<int> tmp;
-            stringstream ss(V);
-            while (ss.good())
-            {
-                int number;               
-                char delimiter;
-                ss >> number >> delimiter;
-
-                if(number > static_cast<int>(SuccessorEntries.size())-1 || number < 0) // saisie securisée, j'ai pas mis que le delimiteur doit etre obligatoirement "," mais az ptetre à faire
-                {
-                    QMessageBox{QMessageBox::Warning, "Erreur de saisie","Le sommet " + QString::fromStdString(to_string(number)) + " n'existe pas." ,QMessageBox::Ok}.exec();
-                    return;
-                }
-                if(number == 0 || !(isdigit(V[V.length() - 1])))
-                {
-                    QMessageBox{QMessageBox::Warning, "Erreur de saisie","Un sommet 0 a été saisi ou la saisie a mal été effectuée, vérifiez vos valeurs.\nSi un sommet n'a pas de successeurs, laissez la case vide.", QMessageBox::Ok}.exec();
-                    return;
-                }
-
-                tmp.push_back(number);
-            }
-            for(int n : tmp)
-                fs.push_back(n);
-        }
-        fs.push_back(0);
-    }
-    fs[0] = fs.size()-1;
-
-    aps.push_back(1);
-    for(int i=1; i<static_cast<int>(fs.size()); i++) // remplir aps à partir de fs
-    {
-        if(fs[i] == 0 && i+1 < static_cast<int>(fs.size()))
-            aps.push_back(i+1);
-    }
-    aps[0] = aps.size()-1;
-
-    string s = "fs : ";
-    for(int i=0; i<static_cast<int>(fs.size());i++)
-        s += to_string(fs[i]) + ", ";
-    s += "\n aps : ";
-    for(int i=0; i<static_cast<int>(aps.size());i++)
-        s += to_string(aps[i]) + ", ";
-
-    QMessageBox{QMessageBox::Information, "Fs et Aps",QString::fromStdString(s), QMessageBox::Ok}.exec();
+    QMessageBox{QMessageBox::Information, "Algorithme du rang",QString::fromStdString(s), QMessageBox::Ok}.exec();
 }
 
 void MainWindow::click_ButtonTarjanAlgorithm()
 {
-    click_ButtonRankAlgorithm(); // pour l'instant ça fait la meme chose
+    /* Algorithme de Tarjan */
+
+    graph g = genGraph();
+    int *cfc;
+    int *prem;
+    algorithms algo = algorithms(g);
+    algo.fortConnexe(prem, cfc);
+
+    string s = "";
+    for (int i=1; i<=aps[0]; i++)
+        s+= "CFC(" + to_string(i) + ") = " + to_string(cfc[i]) + "\n";
+    s+= "\n";
+    for (int i=1; i<=prem[0]; i++)
+        s+= "Prem(" + to_string(i) + ") = " + to_string(prem[i]) + "\n";
+
+    //graph g1 = algo.graph_reduit(prem, cfc);
+    //afficher graph g1
+
+    QMessageBox{QMessageBox::Information, "Algorithme de Tarjan",QString::fromStdString(s), QMessageBox::Ok}.exec();
 }
 
 void MainWindow::click_ButtonAddMatrix()
@@ -463,20 +498,20 @@ void MainWindow::click_ButtonAddMatrix()
 
 void MainWindow::SaveTaskCostEntries()
 {
-     for (int i = 1; i <= NodesAmountValue; ++i)
-     {
-         for (int j = 1; j <= NodesAmountValue; ++j)
-         {
+    for (int i = 1; i <= NodesAmountValue; ++i)
+    {
+        for (int j = 1; j <= NodesAmountValue; ++j)
+        {
             stringstream ss(TaskCostEntries[i][j]->text().toStdString());
             int number;
             if(ss >> number)
                 TaskCostValues[i][j] = TaskCostEntries[i][j]->text().toInt();
             else
                 TaskCostValues[i][j] = 9999;
-         }
-     }
-     QMessageBox{QMessageBox::Information,"Matrice des coûts","La matrice des coûts a été enregistrée avec succès.", QMessageBox::Ok}.exec();
-     createWindow_KeyobardEnterD(NodesAmountValue);
+        }
+    }
+    QMessageBox{QMessageBox::Information,"Matrice des coûts","La matrice des coûts a été enregistrée avec succès.", QMessageBox::Ok}.exec();
+    createWindow_KeyobardEnterD(NodesAmountValue);
 }
 
 
@@ -528,7 +563,7 @@ void MainWindow::createWindow_FileEnterD()
         replace(str2.begin(), str2.end(), ' ', ',');
 
         stringstream ss1(str1);
-        fs.clear();
+        aps.clear();
 
         int number;
         char separateur;
@@ -536,36 +571,28 @@ void MainWindow::createWindow_FileEnterD()
         {
             if(!(ss1 >> number))
             {
-                fs.clear();
+                aps.clear();
                 QMessageBox{QMessageBox::Warning, "Fichier corrompu","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
                 return;
             }
             ss1 >> separateur;
-            fs.push_back(number);
+            aps.push_back(number);
         }
 
         stringstream ss2(str2);
-        aps.clear();
+        fs.clear();
 
         while(!ss2.eof())
         {
             if(!(ss2 >> number))
             {
-                aps.clear();
+                fs.clear();
                 QMessageBox{QMessageBox::Warning, "Fichier corrompu bite","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
                 return;
             }
             ss2 >> separateur;
-            aps.push_back(number);
+            fs.push_back(number);
         }
-
-            string s = "fs : ";
-            for(int i=0; i<static_cast<int>(fs.size());i++)
-                s += to_string(fs[i]) + ", ";
-            s += "\n aps : ";
-            for(int i=0; i<static_cast<int>(aps.size());i++)
-                s += to_string(aps[i]) + ", ";
-
             choosenFileName = f.fileName().toStdString();
             createWindow_ChooseAlgorithm();
     }
@@ -619,12 +646,12 @@ void MainWindow::createWindow_ChooseAlgorithm()
             auto ButtonRankAlgortihm = new QPushButton{tr("Algorithme du RANG")};
             ButtonRankAlgortihm->setMinimumHeight(40);
             AlgorithmsButtonLayer1->addWidget(ButtonRankAlgortihm);
-            //connect(ButtonRankAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonRankAlgorithm);
+            connect(ButtonRankAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonRankAlgorithm);
 
             auto ButtonTarjanAlgortihm = new QPushButton{tr("Algorithme de TARJAN")};
             ButtonTarjanAlgortihm->setMinimumHeight(40);
             AlgorithmsButtonLayer1->addWidget(ButtonTarjanAlgortihm);
-            //connect(ButtonTarjanAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonTarjanAlgorithm);
+            connect(ButtonTarjanAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonTarjanAlgorithm);
 
 
         auto AlgorithmsButtonLayer2 = new QHBoxLayout;

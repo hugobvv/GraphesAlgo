@@ -62,7 +62,9 @@ private:
                     void click_ButtonAddMatrix();
                         vector<vector<QLineEdit*>> TaskCostEntries;
                         vector<vector<int>> TaskCostValues;
+                        boolean TaskCostValuesEmpty = true;
                         void SaveTaskCostEntries();
+                        void DeleteTaskCostEntries();
             void click_FileEnterD();
                 void createWindow_FileEnterD();
                     string choosenFileName;

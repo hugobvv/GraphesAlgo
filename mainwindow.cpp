@@ -453,13 +453,12 @@ void MainWindow::click_ButtonAddMatrix()
             matrixBox->addWidget(tmpLabel, i, 0, Qt::AlignCenter);
         }
 
-
         TaskCostEntries.resize(NodesAmountValue+1);
-        TaskCostValues.resize(NodesAmountValue+1);
+
         for (int i = 1; i <= NodesAmountValue; ++i)
         {
             TaskCostEntries[i].resize(NodesAmountValue+1);
-            TaskCostValues[i].resize(NodesAmountValue+1);
+
             for (int j = 1; j <= NodesAmountValue; ++j)
             {
                 QLineEdit *lineEdit = new QLineEdit;
@@ -467,7 +466,6 @@ void MainWindow::click_ButtonAddMatrix()
                 lineEdit->setFixedSize(35, 35);
                 lineEdit->setAlignment(Qt::AlignCenter);
                 matrixBox->addWidget(lineEdit, i, j);
-                TaskCostValues[i][j] = lineEdit->text().toInt();
             }
         }
 
@@ -479,15 +477,24 @@ void MainWindow::click_ButtonAddMatrix()
         mainBox->addLayout(ButtonsBox);
 
             auto ButtonSave = new QPushButton{tr("Enregistrer")};
-            ButtonSave->setMinimumHeight((NodesAmountValue*50)/2 - 10);
             ButtonsBox->addWidget(ButtonSave);
+            ButtonSave->setMinimumHeight(NodesAmountValue*50/2 - 8);
             connect(ButtonSave, &QPushButton::clicked, this,&MainWindow::SaveTaskCostEntries);
 
             auto ButtonCancel = new QPushButton{tr("Annuler")};
-            ButtonCancel->setMinimumHeight((NodesAmountValue*50)/2 - 10);
             ButtonsBox->addWidget(ButtonCancel);
+            ButtonCancel->setMinimumHeight(NodesAmountValue*50/2 - 8);
             connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyobardEnterD(NodesAmountValue);});
 
+            if(!TaskCostValuesEmpty)
+            {
+                auto ButtonDelete = new QPushButton{tr("Supprimer")};
+                ButtonsBox->addWidget(ButtonDelete);
+                ButtonSave->setMinimumHeight(NodesAmountValue*50/3 - 8);
+                ButtonCancel->setMinimumHeight(NodesAmountValue*50/3 - 8);
+                ButtonDelete->setMinimumHeight(NodesAmountValue*50/3 - 8);
+                connect(ButtonDelete, &QPushButton::clicked, this,&MainWindow::DeleteTaskCostEntries);
+            }
     }
     else
     {
@@ -498,8 +505,10 @@ void MainWindow::click_ButtonAddMatrix()
 
 void MainWindow::SaveTaskCostEntries()
 {
+    TaskCostValues.resize(NodesAmountValue+1);
     for (int i = 1; i <= NodesAmountValue; ++i)
     {
+        TaskCostValues[i].resize(NodesAmountValue+1);
         for (int j = 1; j <= NodesAmountValue; ++j)
         {
             stringstream ss(TaskCostEntries[i][j]->text().toStdString());
@@ -512,8 +521,18 @@ void MainWindow::SaveTaskCostEntries()
     }
     QMessageBox{QMessageBox::Information,"Matrice des coûts","La matrice des coûts a été enregistrée avec succès.", QMessageBox::Ok}.exec();
     createWindow_KeyobardEnterD(NodesAmountValue);
+    TaskCostValuesEmpty = false;
 }
 
+void MainWindow::DeleteTaskCostEntries()
+{
+    for(int i=0; i<TaskCostEntries.size(); i++)
+        TaskCostEntries[i].clear();
+    TaskCostEntries.clear();
+    TaskCostValuesEmpty = true;
+    QMessageBox{QMessageBox::Information,"Matrice des coûts","La matrice des coûts a été supprimée.", QMessageBox::Ok}.exec();
+    click_ButtonAddMatrix();
+}
 
 void MainWindow::saveSuccessorEntries()
 {

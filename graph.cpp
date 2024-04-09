@@ -9,6 +9,7 @@ graph::graph(const vector<int> &fs, const vector<int> &aps, const vector<string>
 }
 
 int graph::getFs(int i) const {return d_fs[i];}
+int graph::getFsSize() const {return d_fs.size();}
 int graph::getAps(int i) const {return d_aps[i];}
 
 void graph::genAdj(const vector<int> &fs, const vector<int> &aps)

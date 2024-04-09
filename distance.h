@@ -16,7 +16,7 @@ public:
 
     /* Methods */
     void Dikjstra(int **&d, int **&pred) const;
-    void Dantzig();
+    string Dantzig();
 
 private:
     /* Methods */

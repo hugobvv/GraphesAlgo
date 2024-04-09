@@ -31,34 +31,18 @@ void MainWindow::createMainWindow()
     auto DirectedGraphButton = new QPushButton{tr("Créer un graphe ORIENTÉ")};
     DirectedGraphButton->setMinimumHeight(60);
     mainBox->addWidget(DirectedGraphButton);
-    connect(DirectedGraphButton, &QPushButton::clicked, this, &MainWindow::click_DirectedGraphButton);
+    connect(DirectedGraphButton, &QPushButton::clicked, this, &MainWindow::createWindow_DirectedGraph);
 
     auto UndirectedGraphButton = new QPushButton{tr("Créer un graphe NON-ORIENTÉ")};
     UndirectedGraphButton->setMinimumHeight(60);
     mainBox->addWidget(UndirectedGraphButton);
-    connect(UndirectedGraphButton, &QPushButton::clicked, this, &MainWindow::click_UndirectedGraphButton);
+    connect(UndirectedGraphButton, &QPushButton::clicked, this, &MainWindow::createWindow_UndirectedGraph);
 
     auto ExitButton = new QPushButton{tr("QUITTER")};
     ExitButton->setMinimumHeight(40);
     mainBox->addWidget(ExitButton);
-    connect(ExitButton, &QPushButton::clicked, this, &MainWindow::click_ExitButton);
+    connect(ExitButton, &QPushButton::clicked, this, &MainWindow::close);
 }
-
-void MainWindow::click_DirectedGraphButton()
-{
-    createWindow_DirectedGraph();
-}
-
-void MainWindow::click_UndirectedGraphButton()
-{
-    createWindow_UndirectedGraph();
-}
-
-void MainWindow::click_ExitButton()
-{
-    close();
-}
-
 
 //----------------- FIN FENETRE PRINCIPALE----------------------//
 
@@ -79,6 +63,7 @@ void MainWindow::createWindow_DirectedGraph()
     menuBar()->clear();
     auto MainWidget= new QWidget;
     setCentralWidget(MainWidget);
+    graphClear();
 
     //CREATION DE BOX ET BOUTONS
     auto mainBox = new QVBoxLayout;
@@ -87,48 +72,38 @@ void MainWindow::createWindow_DirectedGraph()
     auto KeyobardEnter = new QPushButton{tr("Saisir le graphe AU CLAVIER")};
     KeyobardEnter->setMinimumHeight(50);
     mainBox->addWidget(KeyobardEnter);
-    connect(KeyobardEnter, &QPushButton::clicked, this, &MainWindow::click_KeyobardEnterD);
+    connect(KeyobardEnter, &QPushButton::clicked, this, &MainWindow::click_KeyboardEnterD);
 
     auto FileEnter = new QPushButton{tr("Saisir le graphe avec FICHIER")};
     FileEnter->setMinimumHeight(50);
     mainBox->addWidget(FileEnter);
-    connect(FileEnter, &QPushButton::clicked, this, &MainWindow::click_FileEnterD);
+    connect(FileEnter, &QPushButton::clicked, this, &MainWindow::createWindow_FileEnterD);
 
     auto GraphicEnter = new QPushButton{tr("Saisir le graphe GRAPHIQUEMENT")};
     GraphicEnter->setMinimumHeight(50);
     mainBox->addWidget(GraphicEnter);
-    connect(GraphicEnter, &QPushButton::clicked, this, &MainWindow::click_GraphicEnterD);
+    connect(GraphicEnter, &QPushButton::clicked, this, &MainWindow::GraphicEnterD);
 
     //MENU
     auto MenuTotalCancel = menuBar()->addAction("Retour au menu principal");
-    connect(MenuTotalCancel,&QAction::triggered,this,&MainWindow::click_MenuTotalCancel);
+    connect(MenuTotalCancel,&QAction::triggered,this,&MainWindow::createMainWindow);
 }
 
-void MainWindow::click_KeyobardEnterD()
+void MainWindow::click_KeyboardEnterD()
 {
-    createWindow_KeyobardEnterD(0);
+    createWindow_KeyboardEnterD(0);
 }
 
-void MainWindow::click_FileEnterD()
-{
-    createWindow_FileEnterD();
-}
-
-void MainWindow::click_GraphicEnterD()
+void MainWindow::GraphicEnterD()
 {
 
-}
-
-void MainWindow::click_MenuTotalCancel()
-{
-    createMainWindow();
 }
 
 graph MainWindow::genGraph()
 {
     /* Génère le graphe courant */
 
-    if (fs.size() == 0) // si le graphe n'a pas été encore généré
+    if (fs.size() <= 1) // si le graphe n'a pas été encore généré
     {
         fs.clear();
         fs.push_back(0); // initialiser la premiere case à 0 (nbr de cases du tableau fs)
@@ -138,7 +113,6 @@ graph MainWindow::genGraph()
         for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
         {
             string V = SuccessorEntries[i]->text().toStdString();
-
 
             if(!(V.length() == 0))
             {
@@ -172,19 +146,29 @@ graph MainWindow::genGraph()
 
         aps.push_back(1);
         for(int i=1; i<static_cast<int>(fs.size()); i++) // remplir aps à partir de fs
-        {
             if(fs[i] == 0 && i+1 < static_cast<int>(fs.size()))
                 aps.push_back(i+1);
-        }
         aps[0] = aps.size()-1;
     }
     vector<string> info = {};
     return graph(fs,aps,info,true);
 }
 
+void MainWindow::graphClear()
+{
+    fs.clear();
+    aps.clear();
+    choosenFileName = "";
+    for(int i=0; i<TaskCostEntries.size(); i++)
+        TaskCostEntries[i].clear();
+    for(int i=0; i<TaskCostValues.size(); i++)
+        TaskCostValues[i].clear();
+    TaskCostEntries.clear();
+    TaskCostValues.clear();
+    TaskCostValuesEmpty = true;
+}
+
 //----------------- FIN FENETRE GRAPHE ORIENTE----------------------//
-
-
 
 
 //----------------- DEBUT FENETRE GRAPHE NON-ORIENTE----------------------//
@@ -200,6 +184,7 @@ void MainWindow::createWindow_UndirectedGraph()
     menuBar()->clear();
     auto MainWidget= new QWidget;
     setCentralWidget(MainWidget);
+    graphClear();
 
     //CREATION DE BOX ET BOUTONS
     auto mainBox = new QVBoxLayout;
@@ -208,34 +193,34 @@ void MainWindow::createWindow_UndirectedGraph()
     auto KeyobardEnter = new QPushButton{tr("Saisir le graphe AU CLAVIER")};
     KeyobardEnter->setMinimumHeight(50);
     mainBox->addWidget(KeyobardEnter);
-    connect(KeyobardEnter, &QPushButton::clicked, this, &MainWindow::click_KeyobardEnterU);
+    connect(KeyobardEnter, &QPushButton::clicked, this, &MainWindow::KeyboardEnterU);
 
     auto FileEnter = new QPushButton{tr("Saisir le graphe avec FICHIER")};
     FileEnter->setMinimumHeight(50);
     mainBox->addWidget(FileEnter);
-    connect(FileEnter, &QPushButton::clicked, this, &MainWindow::click_FileEnterU);
+    connect(FileEnter, &QPushButton::clicked, this, &MainWindow::FileEnterU);
 
     auto GraphicEnter = new QPushButton{tr("Saisir le graphe GRAPHIQUEMENT")};
     GraphicEnter->setMinimumHeight(50);
     mainBox->addWidget(GraphicEnter);
-    connect(GraphicEnter, &QPushButton::clicked, this, &MainWindow::click_GraphicEnterU);
+    connect(GraphicEnter, &QPushButton::clicked, this, &MainWindow::GraphicEnterU);
 
     //MENU
     auto MenuTotalCancel = menuBar()->addAction("Retour au menu principal");
-    connect(MenuTotalCancel,&QAction::triggered,this,&MainWindow::click_MenuTotalCancel);
+    connect(MenuTotalCancel,&QAction::triggered,this,&MainWindow::createMainWindow);
 }
 
-void MainWindow::click_KeyobardEnterU()
+void MainWindow::KeyboardEnterU()
 {
 
 }
 
-void MainWindow::click_FileEnterU()
+void MainWindow::FileEnterU()
 {
 
 }
 
-void MainWindow::click_GraphicEnterU()
+void MainWindow::GraphicEnterU()
 {
 
 }
@@ -245,7 +230,55 @@ void MainWindow::click_GraphicEnterU()
 
 //----------------- DEBUT FENETRE SAISIE CLAVIER GRAPHE ORIENTE----------------------//
 
-void MainWindow::createWindow_KeyobardEnterD(int NA)
+void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
+{
+    /* Créer les boutons pour choisir les algorithmes */
+    auto AlgorithmsButtonBox = new QVBoxLayout;
+    mainBox->addLayout(AlgorithmsButtonBox);
+
+        auto AlgorithmsButtonLayer1 = new QHBoxLayout;
+        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer1);
+
+            auto ButtonRankAlgorithm = new QPushButton{tr("Algorithme du RANG")};
+            ButtonRankAlgorithm->setMinimumHeight(40);
+            AlgorithmsButtonLayer1->addWidget(ButtonRankAlgorithm);
+            connect(ButtonRankAlgorithm, &QPushButton::clicked, this, &MainWindow::RankAlgorithm);
+
+            auto ButtonTarjanAlgorithm = new QPushButton{tr("Algorithme de TARJAN")};
+            ButtonTarjanAlgorithm->setMinimumHeight(40);
+            AlgorithmsButtonLayer1->addWidget(ButtonTarjanAlgorithm);
+            connect(ButtonTarjanAlgorithm, &QPushButton::clicked, this, &MainWindow::TarjanAlgorithm);
+
+        auto AlgorithmsButtonLayer2 = new QHBoxLayout;
+        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer2);
+
+            auto ButtonSchedulingAlgorithm = new QPushButton{tr("Algorithme de l'ORDONNANCEMENT")};
+            ButtonSchedulingAlgorithm->setMinimumHeight(40);
+            AlgorithmsButtonLayer2->addWidget(ButtonSchedulingAlgorithm);
+
+            auto ButtonDantzigAlgorithm = new QPushButton{tr("Algorithme de DANTZIG")};
+            ButtonDantzigAlgorithm->setMinimumHeight(40);
+            AlgorithmsButtonLayer2->addWidget(ButtonDantzigAlgorithm);
+            connect(ButtonDantzigAlgorithm, &QPushButton::clicked, this, &MainWindow::DantzigAlgorithm);
+
+            auto ButtonDijkstraAlgorithm = new QPushButton{tr("Algorithme de DIJKSTRA")};
+            ButtonDijkstraAlgorithm->setMinimumHeight(40);
+            AlgorithmsButtonLayer2->addWidget(ButtonDijkstraAlgorithm);
+            connect(ButtonDijkstraAlgorithm, &QPushButton::clicked, this, &MainWindow::Check_TaskCost);
+
+        auto AlgorithmsButtonLayer3 = new QHBoxLayout;
+        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer3);
+
+            auto ButtonKruskalAlgorithm = new QPushButton{tr("Algorithme de KRUSKAL")};
+            ButtonKruskalAlgorithm->setMinimumHeight(40);
+            AlgorithmsButtonLayer3->addWidget(ButtonKruskalAlgorithm);
+
+            auto ButtonPruferAlgorithm = new QPushButton{tr("Algorithme de PRÜFER")};
+            ButtonPruferAlgorithm->setMinimumHeight(40);
+            AlgorithmsButtonLayer3->addWidget(ButtonPruferAlgorithm);
+}
+
+void MainWindow::createWindow_KeyboardEnterD(int NA)
 {
     SuccessorEntries.resize(NA+1);
     for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
@@ -283,56 +316,13 @@ void MainWindow::createWindow_KeyobardEnterD(int NA)
         NodesAmountChoiceBox->addWidget(NodesAmountSpinBox, 0, Qt::AlignCenter);
 
         connect(NodesAmountSpinBox, &QSpinBox::valueChanged, this, &MainWindow::NodesAmountValueChanged);
-        connect(NodesAmountSpinBox, &QSpinBox::valueChanged, this, [this]{ MainWindow::createWindow_KeyobardEnterD(NodesAmountValue);});
+        connect(NodesAmountSpinBox, &QSpinBox::valueChanged, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
 
     auto LigneH = new QFrame{};
     LigneH->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
     mainBox->addWidget(LigneH);
 
-    auto AlgorithmsButtonBox = new QVBoxLayout;
-    mainBox->addLayout(AlgorithmsButtonBox);
-
-
-        auto AlgorithmsButtonLayer1 = new QHBoxLayout;
-        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer1);
-
-            auto ButtonRankAlgortihm = new QPushButton{tr("Algorithme du RANG")};
-            ButtonRankAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer1->addWidget(ButtonRankAlgortihm);
-            connect(ButtonRankAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonRankAlgorithm);
-
-            auto ButtonTarjanAlgortihm = new QPushButton{tr("Algorithme de TARJAN")};
-            ButtonTarjanAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer1->addWidget(ButtonTarjanAlgortihm);
-            connect(ButtonTarjanAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonTarjanAlgorithm);
-
-
-        auto AlgorithmsButtonLayer2 = new QHBoxLayout;
-        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer2);
-
-            auto ButtonSchedulingAlgortihm = new QPushButton{tr("Algorithme de l'ORDONNANCEMENT")};
-            ButtonSchedulingAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer2->addWidget(ButtonSchedulingAlgortihm);
-
-            auto ButtonDantzigAlgortihm = new QPushButton{tr("Algorithme de DANTZIG")};
-            ButtonDantzigAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer2->addWidget(ButtonDantzigAlgortihm);
-
-            auto ButtonDijkstraAlgortihm = new QPushButton{tr("Algorithme de DIJKSTRA")};
-            ButtonDijkstraAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer2->addWidget(ButtonDijkstraAlgortihm);
-
-
-        auto AlgorithmsButtonLayer3 = new QHBoxLayout;
-        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer3);
-
-            auto ButtonKruskalAlgortihm = new QPushButton{tr("Algorithme de KRUSKAL")};
-            ButtonKruskalAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer3->addWidget(ButtonKruskalAlgortihm);
-
-            auto ButtonPruferAlgortihm = new QPushButton{tr("Algorithme de PRÜFER")};
-            ButtonPruferAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer3->addWidget(ButtonPruferAlgortihm);
+    addAlgorithmButtons(mainBox);
 
     auto LigneH2 = new QFrame{};
     LigneH2->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
@@ -369,12 +359,7 @@ void MainWindow::createWindow_KeyobardEnterD(int NA)
 
     //MENU
     auto MenuCancel = menuBar()->addAction("Retour");
-    connect(MenuCancel,&QAction::triggered,this,&MainWindow::click_MenuCancel);
-}
-
-void MainWindow::click_MenuCancel()
-{
-    createWindow_DirectedGraph();
+    connect(MenuCancel,&QAction::triggered,this,&MainWindow::createWindow_DirectedGraph);
 }
 
 void MainWindow::NodesAmountValueChanged(int value)
@@ -383,11 +368,13 @@ void MainWindow::NodesAmountValueChanged(int value)
     NodesAmountValue = value;
 }
 
-void MainWindow::click_ButtonRankAlgorithm()
+void MainWindow::RankAlgorithm()
 {
-    /* Algorithme du rang */
-
     graph g = genGraph();
+
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+
     int *rang;
     algorithms algo = algorithms(g);
     algo.rang(rang);
@@ -399,11 +386,13 @@ void MainWindow::click_ButtonRankAlgorithm()
     QMessageBox{QMessageBox::Information, "Algorithme du rang",QString::fromStdString(s), QMessageBox::Ok}.exec();
 }
 
-void MainWindow::click_ButtonTarjanAlgorithm()
+void MainWindow::TarjanAlgorithm()
 {
-    /* Algorithme de Tarjan */
-
     graph g = genGraph();
+
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+
     int *cfc;
     int *prem;
     algorithms algo = algorithms(g);
@@ -420,6 +409,16 @@ void MainWindow::click_ButtonTarjanAlgorithm()
     //afficher graph g1
 
     QMessageBox{QMessageBox::Information, "Algorithme de Tarjan",QString::fromStdString(s), QMessageBox::Ok}.exec();
+}
+
+void MainWindow::DantzigAlgorithm()
+{
+    graph g = genGraph();
+    if (!Check_TaskCost()) //si matrice des coûts absente ou mal saisie
+        return;
+    else
+        qInfo()<<"waf";
+
 }
 
 void MainWindow::click_ButtonAddMatrix()
@@ -484,7 +483,7 @@ void MainWindow::click_ButtonAddMatrix()
             auto ButtonCancel = new QPushButton{tr("Annuler")};
             ButtonsBox->addWidget(ButtonCancel);
             ButtonCancel->setMinimumHeight(NodesAmountValue*50/2 - 8);
-            connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyobardEnterD(NodesAmountValue);});
+            connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
 
             if(!TaskCostValuesEmpty)
             {
@@ -520,7 +519,7 @@ void MainWindow::SaveTaskCostEntries()
         }
     }
     QMessageBox{QMessageBox::Information,"Matrice des coûts","La matrice des coûts a été enregistrée avec succès.", QMessageBox::Ok}.exec();
-    createWindow_KeyobardEnterD(NodesAmountValue);
+    createWindow_KeyboardEnterD(NodesAmountValue);
     TaskCostValuesEmpty = false;
 }
 
@@ -539,11 +538,8 @@ void MainWindow::saveSuccessorEntries()
     SuccessorEntriesValues.clear();
     SuccessorEntriesValues.push_back("#");
     for(int i=1; i<SuccessorEntries.size(); i++)
-    {
         SuccessorEntriesValues.push_back(SuccessorEntries[i]->text().toStdString());
-    }
 }
-
 
 
 //----------------- FIN FENETRE SAISIE CLAVIER GRAPHE ORIENTE----------------------//
@@ -606,7 +602,7 @@ void MainWindow::createWindow_FileEnterD()
             if(!(ss2 >> number))
             {
                 fs.clear();
-                QMessageBox{QMessageBox::Warning, "Fichier corrompu bite","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
+                QMessageBox{QMessageBox::Warning, "Fichier corrompu","Votre fichier n'est pas adapté à la création d'un graphe.", QMessageBox::Ok}.exec();
                 return;
             }
             ss2 >> separateur;
@@ -653,75 +649,36 @@ void MainWindow::createWindow_ChooseAlgorithm()
 
     //MENU
     auto MenuCancel = menuBar()->addAction("Retour");
-    connect(MenuCancel,&QAction::triggered,this,&MainWindow::click_MenuCancel);
+    connect(MenuCancel,&QAction::triggered,this,&MainWindow::createWindow_DirectedGraph);
 
-    auto AlgorithmsButtonBox = new QVBoxLayout;
-    mainBox->addLayout(AlgorithmsButtonBox);
-
-
-        auto AlgorithmsButtonLayer1 = new QHBoxLayout;
-        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer1);
-
-            auto ButtonRankAlgortihm = new QPushButton{tr("Algorithme du RANG")};
-            ButtonRankAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer1->addWidget(ButtonRankAlgortihm);
-            connect(ButtonRankAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonRankAlgorithm);
-
-            auto ButtonTarjanAlgortihm = new QPushButton{tr("Algorithme de TARJAN")};
-            ButtonTarjanAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer1->addWidget(ButtonTarjanAlgortihm);
-            connect(ButtonTarjanAlgortihm, &QPushButton::clicked, this, &MainWindow::click_ButtonTarjanAlgorithm);
-
-
-        auto AlgorithmsButtonLayer2 = new QHBoxLayout;
-        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer2);
-
-            auto ButtonSchedulingAlgortihm = new QPushButton{tr("Algorithme de l'ORDONNANCEMENT")};
-            ButtonSchedulingAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer2->addWidget(ButtonSchedulingAlgortihm);
-
-            auto ButtonDantzigAlgortihm = new QPushButton{tr("Algorithme de DANTZIG")};
-            ButtonDantzigAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer2->addWidget(ButtonDantzigAlgortihm);
-            connect(ButtonDantzigAlgortihm, &QPushButton::clicked, this, &MainWindow::Check_TaskCost);
-
-            auto ButtonDijkstraAlgortihm = new QPushButton{tr("Algorithme de DIJKSTRA")};
-            ButtonDijkstraAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer2->addWidget(ButtonDijkstraAlgortihm);
-            connect(ButtonDijkstraAlgortihm, &QPushButton::clicked, this, &MainWindow::Check_TaskCost);
-
-
-        auto AlgorithmsButtonLayer3 = new QHBoxLayout;
-        AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer3);
-
-            auto ButtonKruskalAlgortihm = new QPushButton{tr("Algorithme de KRUSKAL")};
-            ButtonKruskalAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer3->addWidget(ButtonKruskalAlgortihm);
-
-            auto ButtonPruferAlgortihm = new QPushButton{tr("Algorithme de PRÜFER")};
-            ButtonPruferAlgortihm->setMinimumHeight(40);
-            AlgorithmsButtonLayer3->addWidget(ButtonPruferAlgortihm);
-
-
-
-        //rang, tarjan, ordonneancembnt, dantzig, dikstra, kruskhal, prufer
+    addAlgorithmButtons(mainBox);
 }
 
-void MainWindow::Check_TaskCost()
+bool MainWindow::Check_TaskCost()
 {
+    /* Vérifie si la matrice des coûts a été correctement remplie */
+
+    if (!TaskCostValuesEmpty) //si elle est déjà remplie
+        return true;
+
+    if (choosenFileName == "") //si pas de fichier choisi
+    {
+        QMessageBox{QMessageBox::Warning, "Matrice des coûts absente", "Veuillez rentrer une matrice de coûts", QMessageBox::Ok}.exec();
+        return false;
+    }
+
     ifstream inputFile(choosenFileName);
     string str3;
     if (inputFile.is_open())
         for(int i=0; i<2; i++)
             getline(inputFile, str3);
 
-    vector<vector<int>> TaskCost(fs[0],vector<int>(fs[0], 0));
+    TaskCostValues.resize(aps[0], vector<int>(aps[0], 0));
 
-    for(int i=0; i<fs[0]; i++)
+    for(int i=0; i<aps[0]; i++)
     {
         replace(str3.begin(), str3.end(), ' ', ',');
         getline(inputFile, str3);
-
 
         stringstream ssTMP(str3);
         vector<int> T;
@@ -732,32 +689,31 @@ void MainWindow::Check_TaskCost()
             if(!(ssTMP >> number))
             {
                 QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas correctement écrite ou n'existe pas.", QMessageBox::Ok}.exec();
-                TaskCost.clear();
-                return;
+                TaskCostValues.clear();
+                return false;
             }
             T.push_back(number);
             ssTMP >> separateur;
         }
 
-        if(static_cast<int>(T.size()) != fs[0])
+        if(static_cast<int>(T.size()) != aps[0])
         {
             QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas adaptée au graphe du même fichier ou n'existe pas", QMessageBox::Ok}.exec();
-            TaskCost.clear();
-            return;
+            TaskCostValues.clear();
+            return false;
         }
 
-        if(inputFile.eof() && i != fs[0]-1)
+        if(inputFile.eof() && i != aps[0]-1)
         {
             QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas complète.", QMessageBox::Ok}.exec();
-            TaskCost.clear();
-            return;
+            TaskCostValues.clear();
+            return false;
         }
 
-        TaskCost[i] = T;
+        TaskCostValues[i] = T;
     }
-
-    for(int i=0; i< TaskCost.size(); i++)
-        qInfo() << TaskCost[i];
+    TaskCostValuesEmpty = false;
+    return true;
 }
 
 
@@ -765,28 +721,16 @@ void MainWindow::Check_TaskCost()
 //----------------- FIN FENETRE SAISIE FICHIER GRAPHE ORIENTE----------------------//
 
 
-
-
-
-
-
-
-
-
 void MainWindow::afficheFs()
 {
-    for(int i=0; i<static_cast<int>(fs.size());i++)
-    {
+    for(int i=0; i < static_cast<int>(fs.size());i++)
         qInfo() << fs[i];
-    }
 }
 
 void MainWindow::afficheAps()
 {
-    for(int i=0; i<static_cast<int>(aps.size());i++)
-    {
+    for(int i=0; i < static_cast<int>(aps.size());i++)
         qInfo() << aps[i];
-    }
 }
 
 vector<int> MainWindow::getFs()

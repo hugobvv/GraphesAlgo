@@ -71,6 +71,7 @@ void distance::Dikjstra(int s, int *&dist, int *&pred) const
             k++;
         }
     }
+    delete[] inS;
 }
 
 
@@ -92,10 +93,11 @@ void distance::Dikjstra(int **&dist, int **&pred) const
     
 }
 
-void distance::Dantzig()
+string distance::Dantzig()
 {
     /* Modifie la matrice des couts en trouvant les chemins les plus courts */
     /* Les coûts peuvent être négatifs */
+    /* Retourne un message si présence d'un circuit absorbant */
     int x;
     for (int k=1; k<d_cout.size(); k++)
     {
@@ -108,15 +110,12 @@ void distance::Dantzig()
                 if((x = d_cout[k+1][j] + d_cout[j][i]) < d_cout[k+1][i])
                     d_cout[k+1][i] = x;
             if (d_cout[i][k+1] + d_cout[k+1][i] < 0)
-            {
-                cout<<"Existence d'un circuit absorbant passant par les sommets ";
-                cout<< i << " et " << k+1;
-                return;
-            }
+                return "Existence d'un circuit absorbant passant par les sommets " + to_string(i) + " et " + to_string(k+1);
         }
         for (int i=1; i<=k; i++)
             for (int j=1; j<=k; j++)
                 if ((x = d_cout[i][k+1]+d_cout[k+1][j]) < d_cout[i][j])
                     d_cout[i][j] = x;
     }
+    return "";
 }

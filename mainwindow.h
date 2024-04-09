@@ -42,22 +42,24 @@ public:
     vector<vector<int>>getTaskCostMatrix();
 
 private:
-
-     void createMainWindow();
+    void createMainWindow();
         void click_DirectedGraphButton();
             void createWindow_DirectedGraph();
-            void click_KeyobardEnterD();
+            void click_KeyboardEnterD();
                 graph genGraph();
-                void createWindow_KeyobardEnterD(int NA); // NA = Nodes Amount = nombre de noeuds / sommets
+                void graphClear();
+                void addAlgorithmButtons(QVBoxLayout *mainBox);
+                void createWindow_KeyboardEnterD(int NA); // NA = Nodes Amount = nombre de noeuds / sommets
                     QSpinBox* NodesAmountSpinBox;
                     int NodesAmountValue=0;
                     vector<QLineEdit*> SuccessorEntries; //attention rien à l'indice 0
                     vector<string> SuccessorEntriesValues; //attention rien à l'indice 0
                     void saveSuccessorEntries();
                     vector<int> fs;
-                    vector <int> aps;
-                    void click_ButtonRankAlgorithm();
-                    void click_ButtonTarjanAlgorithm();
+                    vector<int> aps;
+                    void RankAlgorithm();
+                    void TarjanAlgorithm();
+                    void DantzigAlgorithm();
                     // les autres
                     void click_ButtonAddMatrix();
                         vector<vector<QLineEdit*>> TaskCostEntries;
@@ -65,27 +67,18 @@ private:
                         boolean TaskCostValuesEmpty = true;
                         void SaveTaskCostEntries();
                         void DeleteTaskCostEntries();
-            void click_FileEnterD();
                 void createWindow_FileEnterD();
-                    string choosenFileName;
+                    string choosenFileName="";
                     void createWindow_ChooseAlgorithm();
-                        void Check_TaskCost();
-                            vector<vector<int>> TaskCost;
-            void click_GraphicEnterD();
-        void click_UndirectedGraphButton();
-           void createWindow_UndirectedGraph();
-           void click_KeyobardEnterU();
-           void click_FileEnterU();
-           void click_GraphicEnterU();
-        void click_ExitButton();
+                        bool Check_TaskCost();
+            void GraphicEnterD();
+            void createWindow_UndirectedGraph();
+            void KeyboardEnterU();
+            void FileEnterU();
+            void GraphicEnterU();
         void NodesAmountValueChanged(int value);
-
 
         void afficheFs();
         void afficheAps();
-
-private slots:
-    void click_MenuTotalCancel();
-    void click_MenuCancel();
 };
 #endif // MAINWINDOW_H

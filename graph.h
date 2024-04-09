@@ -15,6 +15,7 @@ public:
 
     /* Getters */
     int getFs(int i) const;
+    int getFsSize() const;
     int getAps(int i) const;
 
     /* Methods */

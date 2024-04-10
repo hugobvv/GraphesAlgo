@@ -54,7 +54,7 @@ void MainWindow::createMainWindow()
 
 void MainWindow::createWindow_DirectedGraph()
 {
-
+    oriented = true;
     resize(400,220);
     setMinimumSize(400,220);
     setMaximumSize(400,220);
@@ -176,6 +176,7 @@ void MainWindow::graphClear()
 
 void MainWindow::createWindow_UndirectedGraph()
 {
+    oriented = false;
     resize(400,220);
     setMinimumSize(400,220);
     setMaximumSize(400,220);
@@ -273,6 +274,7 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
             auto ButtonKruskalAlgorithm = new QPushButton{tr("Algorithme de KRUSKAL")};
             ButtonKruskalAlgorithm->setMinimumHeight(40);
             AlgorithmsButtonLayer3->addWidget(ButtonKruskalAlgorithm);
+            connect(ButtonKruskalAlgorithm, &QPushButton::clicked, this, &MainWindow::KruskalAlgorithm);
 
             auto ButtonPruferAlgorithm = new QPushButton{tr("Algorithme de PRÜFER")};
             ButtonPruferAlgorithm->setMinimumHeight(40);
@@ -589,7 +591,7 @@ void MainWindow::DikjstraAlgorithm()
     int **pred;
     gc.Dikjstra(dist,pred);
 
-    QString message = "Matrice des distances après application de l'algorithme de Dikjstra :\n      ";
+    QString message = "Matrice des distances après application de l'algorithme de Dikjstra :\n\n      ";
 
     for (int i=1; i<= g.getAps(0); i++)
         message += "(" + QString::number(i) + ")" + "  ";
@@ -604,16 +606,37 @@ void MainWindow::DikjstraAlgorithm()
             message += " " + QString::number(dist[i][j]) + "   ";
     }
 
-    message += "\nMatrice des prédecesseurs :\n";
+    message += "\n\nMatrice des prédecesseurs :\n\n      ";
 
+    for (int i=1; i<= g.getAps(0); i++)
+        message += "(" + QString::number(i) + ")" + "  ";
+    message += "\n      ";
+    for (int i=1; i<= g.getAps(0); i++)
+        message += "----";
     for(int i=1; i<= g.getAps(0); i++)
     {
+        message += "\n("+ QString::number(i) + ") | ";
         for (int j=1; j<= g.getAps(0); j++)
             message += QString::number(pred[i][j]) + "   ";
-        message += "\n";
     }
 
     QMessageBox{QMessageBox::Information, "Algorithme de Dikjstra",message, QMessageBox::Ok}.exec();
+}
+
+void MainWindow::KruskalAlgorithm()
+{
+    if (!Check_TaskCost()) //si matrice des coûts absente ou mal saisie
+        return;
+    graph g = genGraph();
+
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+    if (oriented)
+    {
+        QMessageBox{QMessageBox::Warning, "Algorithme de Kruskal","Le graphe ne doit pas être orienté", QMessageBox::Ok}.exec();
+        return;
+    }
+    graphWithCosts gc = graphWithCosts{g,TaskCostValues};
 }
 
 

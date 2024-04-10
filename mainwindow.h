@@ -62,6 +62,7 @@ private:
                     void TarjanAlgorithm();
                     void DantzigAlgorithm();
                     void DikjstraAlgorithm();
+                    void KruskalAlgorithm();
 
                     void click_ButtonAddMatrix();
                         vector<vector<QLineEdit*>> TaskCostEntries;
@@ -78,6 +79,7 @@ private:
             void KeyboardEnterU();
             void FileEnterU();
             void GraphicEnterU();
+            bool oriented;
         void NodesAmountValueChanged(int value);
 
         void afficheFs();

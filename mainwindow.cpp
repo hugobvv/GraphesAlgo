@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "graph.h"
 #include "algorithms.h"
+#include "graphWithCosts.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -264,7 +265,7 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
             auto ButtonDijkstraAlgorithm = new QPushButton{tr("Algorithme de DIJKSTRA")};
             ButtonDijkstraAlgorithm->setMinimumHeight(40);
             AlgorithmsButtonLayer2->addWidget(ButtonDijkstraAlgorithm);
-            connect(ButtonDijkstraAlgorithm, &QPushButton::clicked, this, &MainWindow::Check_TaskCost);
+            connect(ButtonDijkstraAlgorithm, &QPushButton::clicked, this, &MainWindow::DikjstraAlgorithm);
 
         auto AlgorithmsButtonLayer3 = new QHBoxLayout;
         AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer3);
@@ -366,59 +367,6 @@ void MainWindow::NodesAmountValueChanged(int value)
 {
     saveSuccessorEntries();
     NodesAmountValue = value;
-}
-
-void MainWindow::RankAlgorithm()
-{
-    graph g = genGraph();
-
-    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
-        return;
-
-    int *rang;
-    algorithms algo = algorithms(g);
-    algo.rang(rang);
-
-    string s = "";
-    for (int i=1; i<=aps[0]; i++)
-        s+= "rang(" + to_string(i) + ") = " + to_string(rang[i]) + "\n";
-
-    QMessageBox{QMessageBox::Information, "Algorithme du rang",QString::fromStdString(s), QMessageBox::Ok}.exec();
-}
-
-void MainWindow::TarjanAlgorithm()
-{
-    graph g = genGraph();
-
-    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
-        return;
-
-    int *cfc;
-    int *prem;
-    algorithms algo = algorithms(g);
-    algo.fortConnexe(prem, cfc);
-
-    string s = "";
-    for (int i=1; i<=aps[0]; i++)
-        s+= "CFC(" + to_string(i) + ") = " + to_string(cfc[i]) + "\n";
-    s+= "\n";
-    for (int i=1; i<=prem[0]; i++)
-        s+= "Prem(" + to_string(i) + ") = " + to_string(prem[i]) + "\n";
-
-    //graph g1 = algo.graph_reduit(prem, cfc);
-    //afficher graph g1
-
-    QMessageBox{QMessageBox::Information, "Algorithme de Tarjan",QString::fromStdString(s), QMessageBox::Ok}.exec();
-}
-
-void MainWindow::DantzigAlgorithm()
-{
-    graph g = genGraph();
-    if (!Check_TaskCost()) //si matrice des coûts absente ou mal saisie
-        return;
-    else
-        qInfo()<<"waf";
-
 }
 
 void MainWindow::click_ButtonAddMatrix()
@@ -539,6 +487,133 @@ void MainWindow::saveSuccessorEntries()
     SuccessorEntriesValues.push_back("#");
     for(int i=1; i<SuccessorEntries.size(); i++)
         SuccessorEntriesValues.push_back(SuccessorEntries[i]->text().toStdString());
+}
+
+void MainWindow::RankAlgorithm()
+{
+    graph g = genGraph();
+
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+
+    int *rang;
+    algorithms algo = algorithms(g);
+    algo.rang(rang);
+
+    string s = "";
+    for (int i=1; i<=aps[0]; i++)
+        s+= "rang(" + to_string(i) + ") = " + to_string(rang[i]) + "\n";
+
+    QMessageBox{QMessageBox::Information, "Algorithme du rang",QString::fromStdString(s), QMessageBox::Ok}.exec();
+}
+
+void MainWindow::TarjanAlgorithm()
+{
+    graph g = genGraph();
+
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+
+    int *cfc;
+    int *prem;
+    algorithms algo = algorithms(g);
+    algo.fortConnexe(prem, cfc);
+
+    string s = "";
+    for (int i=1; i<=aps[0]; i++)
+        s+= "CFC(" + to_string(i) + ") = " + to_string(cfc[i]) + "\n";
+    s+= "\n";
+    for (int i=1; i<=prem[0]; i++)
+        s+= "Prem(" + to_string(i) + ") = " + to_string(prem[i]) + "\n";
+
+    //graph g1 = algo.graph_reduit(prem, cfc);
+    //afficher graph g1
+
+    QMessageBox{QMessageBox::Information, "Algorithme de Tarjan",QString::fromStdString(s), QMessageBox::Ok}.exec();
+}
+
+void MainWindow::DantzigAlgorithm()
+{
+    if (!Check_TaskCost()) //si matrice des coûts absente ou mal saisie
+        return;
+    graph g = genGraph();
+
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+
+    graphWithCosts gc = graphWithCosts{g,TaskCostValues};
+    string dantzig = gc.Dantzig();
+
+    if (dantzig != "") //circuit absorbant
+        QMessageBox{QMessageBox::Warning, "Algorithme de Dantzig",QString::fromStdString(dantzig), QMessageBox::Ok}.exec();
+
+    else
+    {
+        QString message = "Matrice des coûts après application de l'algorithme de Dantzig :\n\n       ";
+        for (int i=1; i<= g.getAps(0); i++)
+            message += "(" + QString::number(i) + ")" + "  ";
+        message += "\n      ";
+        for (int i=1; i<= g.getAps(0); i++)
+            message += "----";
+        for (int i=1; i<= g.getAps(0); i++)
+        {
+            message += "\n("+ QString::number(i) + ") | ";
+            for (int j=1; j<= g.getAps(0); j++)
+                if (gc.getCout(i,j) != 9999) // il y a un coût
+                    message += " " + QString::number(gc.getCout(i,j)) + "   ";
+                else
+                    message += "    ";
+        }
+        QMessageBox{QMessageBox::Information, "Algorithme de Dantzig",message, QMessageBox::Ok}.exec();
+    }
+}
+
+void MainWindow::DikjstraAlgorithm()
+{
+    if (!Check_TaskCost()) //si matrice des coûts absente ou mal saisie
+        return;
+    graph g = genGraph();
+
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+
+    graphWithCosts gc = graphWithCosts{g,TaskCostValues};
+
+    if (!gc.positiveCosts()) //si des coûts sont négatifs
+    {
+        QMessageBox{QMessageBox::Warning, "Algorithme de Dikjstra","Les coûts doivent être positifs pour appliquer l'algorithme de Dikjstra", QMessageBox::Ok}.exec();
+        return;
+    }
+
+    int **dist;
+    int **pred;
+    gc.Dikjstra(dist,pred);
+
+    QString message = "Matrice des distances après application de l'algorithme de Dikjstra :\n      ";
+
+    for (int i=1; i<= g.getAps(0); i++)
+        message += "(" + QString::number(i) + ")" + "  ";
+    message += "\n      ";
+    for (int i=1; i<= g.getAps(0); i++)
+        message += "----";
+
+    for(int i=1; i<= g.getAps(0); i++)
+    {
+        message += "\n("+ QString::number(i) + ") | ";
+        for (int j=1; j<= g.getAps(0); j++)
+            message += " " + QString::number(dist[i][j]) + "   ";
+    }
+
+    message += "\nMatrice des prédecesseurs :\n";
+
+    for(int i=1; i<= g.getAps(0); i++)
+    {
+        for (int j=1; j<= g.getAps(0); j++)
+            message += QString::number(pred[i][j]) + "   ";
+        message += "\n";
+    }
+
+    QMessageBox{QMessageBox::Information, "Algorithme de Dikjstra",message, QMessageBox::Ok}.exec();
 }
 
 
@@ -673,7 +748,9 @@ bool MainWindow::Check_TaskCost()
         for(int i=0; i<2; i++)
             getline(inputFile, str3);
 
-    TaskCostValues.resize(aps[0], vector<int>(aps[0], 0));
+    TaskCostValues.resize(aps[0]+1, vector<int>(aps[0]+1, 0));
+    for (int i=0; i<aps[0]; i++)
+        TaskCostValues[0].push_back(0);
 
     for(int i=0; i<aps[0]; i++)
     {
@@ -682,6 +759,7 @@ bool MainWindow::Check_TaskCost()
 
         stringstream ssTMP(str3);
         vector<int> T;
+        T.push_back(0);
         int number=0;
         char separateur;
         while(!ssTMP.eof())
@@ -696,7 +774,7 @@ bool MainWindow::Check_TaskCost()
             ssTMP >> separateur;
         }
 
-        if(static_cast<int>(T.size()) != aps[0])
+        if(static_cast<int>(T.size()) != aps[0]+1)
         {
             QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas adaptée au graphe du même fichier ou n'existe pas", QMessageBox::Ok}.exec();
             TaskCostValues.clear();

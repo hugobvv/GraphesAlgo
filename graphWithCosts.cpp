@@ -1,32 +1,32 @@
-#include "distance.h"
+#include "graphWithCosts.h"
+#include <QDebug>
 
-distance::distance (const graph &g, const vector<vector<int>> &cout) : d_g{g}, d_cout{cout}
+graphWithCosts::graphWithCosts (const graph &g, const vector<vector<int>> &cout) : d_g{g}, d_cout{cout}
 {}
 
-int distance::getCout(int i, int j) const
+int graphWithCosts::getCout(int i, int j) const
 {
     return d_cout[i][j];
 }
 
-bool distance::positiveCosts() const
+bool graphWithCosts::positiveCosts() const
 {
-    for (int i=1; i<=d_cout.size(); i++)
-        for (int j=1; j<=d_cout.size(); j++)
+    for (int i=1; i<d_cout.size(); i++)
+        for (int j=1; j<d_cout.size(); j++)
             if (d_cout[i][j] < 0)
                 return false;
     return true;
 }
 
-void distance::Dikjstra(int s, int *&dist, int *&pred) const
+void graphWithCosts::Dikjstra(int s, int *&dist, int *&pred) const
 {
     /* Algorithme de Dikjstra pour le sommet s */
     /* @return tableau distance et tableau predécesseurs depuis s*/
     /* les coûts sont >= 0 */
 
     int ind; /* nombre d'elements qui restent a traiter */
-    int i, j, k, v;
+    int i, j, k, v, m;
     int n = d_g.getAps(0);
-    int m = d_g.getFs(0);
     pred = new int[n+1];
     dist = new int[n+1];
     bool *inS = new bool[n+1]; //sommets qui restent a traiter
@@ -53,7 +53,11 @@ void distance::Dikjstra(int s, int *&dist, int *&pred) const
                     m = dist[i];
                     j = i;
                 }
-        if (m == 100) return; //sommet inaccessible
+        if (m == 100)
+        {
+            delete[] inS;
+            return; //sommet inaccessible
+        }
         inS[j] = false;
         ind--;
         k = d_g.getAps(j);
@@ -75,31 +79,25 @@ void distance::Dikjstra(int s, int *&dist, int *&pred) const
 }
 
 
-void distance::Dikjstra(int **&dist, int **&pred) const
+void graphWithCosts::Dikjstra(int **&dist, int **&pred) const
 {
     /* Algorithme de Dikjstra pour tous les sommets */
     /* @return matrice distance et matrice predécesseurs */
 
-    if (positiveCosts())
-    {
-        int n = d_g.getAps(0);
-        dist = new int* [n+1];
-        pred = new int* [n+1];
-        for (int s=1; s<=n; s++)
-            Dikjstra(s, dist[s], pred[s]);
-    }
-    else
-        cout<<"Les cooûts doivent être positifs pour appliquer l'algorithme de Dikjstra";
-    
+    int n = d_g.getAps(0);
+    dist = new int* [n+1];
+    pred = new int* [n+1];
+    for (int s=1; s<=n; s++)
+        Dikjstra(s, dist[s], pred[s]);
 }
 
-string distance::Dantzig()
+string graphWithCosts::Dantzig()
 {
     /* Modifie la matrice des couts en trouvant les chemins les plus courts */
     /* Les coûts peuvent être négatifs */
     /* Retourne un message si présence d'un circuit absorbant */
     int x;
-    for (int k=1; k<d_cout.size(); k++)
+    for (int k=1; k<d_cout.size()-1; k++)
     {
         for (int i=1; i<=k; i++)
         {

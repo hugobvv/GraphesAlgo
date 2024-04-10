@@ -10,15 +10,15 @@ CONFIG += c++17
 
 SOURCES += \
     algorithms.cpp \
-    distance.cpp \
     graph.cpp \
+    graphWithCosts.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     algorithms.h \
-    distance.h \
     graph.h \
+    graphWithCosts.h \
     mainwindow.h
 
 # Default rules for deployment.

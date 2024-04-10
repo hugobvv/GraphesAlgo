@@ -57,10 +57,12 @@ private:
                     void saveSuccessorEntries();
                     vector<int> fs;
                     vector<int> aps;
+
                     void RankAlgorithm();
                     void TarjanAlgorithm();
                     void DantzigAlgorithm();
-                    // les autres
+                    void DikjstraAlgorithm();
+
                     void click_ButtonAddMatrix();
                         vector<vector<QLineEdit*>> TaskCostEntries;
                         vector<vector<int>> TaskCostValues;

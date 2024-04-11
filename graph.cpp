@@ -14,7 +14,8 @@ int graph::getAps(int i) const {return d_aps[i];}
 
 bool graph::isTree() const
 {
-  return (d_aps[0] - 1)*2 == d_fs[0] - d_aps[0] + 1;
+  int n = d_aps[0];
+  return (n - 1)*2 == d_fs[0] - n + 1;
 }
 
 vector<int> graph::prufer() const

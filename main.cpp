@@ -1,10 +1,10 @@
-//#include "mainwindow.h"
-//#include <QApplication>
+#include "mainwindow.h"
+#include <QApplication>
 #include <iostream>
 #include "graph.h"
 #include "algorithms.h"
 
-/*
+
 void testRang()
 {
     vector<int> aps = {9, 1, 4, 6, 9, 10, 11, 13, 16, 20};
@@ -19,8 +19,8 @@ void testRang()
     for (int i=0; i<=aps[0]; i++)
         qInfo()<<"rang["<<i<<"] = "<<rang[i];
 }
-*/
-/*
+
+
 void testTarjan()
 {
     vector<int> aps = {10, 1, 3, 6, 8, 11, 13, 18, 20, 22, 24};
@@ -33,19 +33,19 @@ void testTarjan()
 
     algorithms algo = algorithms(g);
 
-    /* Affichage CFC et prem *//*
+    /* Affichage CFC et prem */
     algo.fortConnexe(prem, cfc);
     for (int i=0; i<=aps[0]; i++)
         qInfo() <<"cfc["<<i<<"] = "<<cfc[i];
 
     for (int i=0; i<=prem[0]; i++)
-        qInfo() <<"prem["<<i<<"] = "<<prem[i];*/
+        qInfo() <<"prem["<<i<<"] = "<<prem[i];
 
-    /* Affichage bases réduite *//*
+    /* Affichage bases réduite */
     graph g1 = algo.graph_reduit(prem, cfc);
     for (int i=0; i<=g1.getFs(0); i++)
         qInfo() <<"fs["<<i<<"] = "<<g1.getFs(i);
-}*/
+}
 
 void testPrufer()
 {
@@ -65,11 +65,9 @@ void testPrufer()
 
 int main(void)
 {
-    /*
+    
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
-    return a.exec();*/
-    testPrufer();
-    return 0;
+    return a.exec();
 }

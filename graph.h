@@ -19,6 +19,16 @@ public:
     int getAps(int i) const;
 
     /* Methods */
+    bool isTree() const;
+    vector<int> prufer() const;
+
+    ~graph()
+    {
+        for (int i = 0; i < d_aps.size(); i++) {
+            delete[] d_adj[i];
+        }
+        delete[] d_adj;
+    }
 
 private:
     /* Methods */

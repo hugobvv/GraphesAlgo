@@ -63,7 +63,7 @@ void testPrufer()
     cin>>wait;
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
     
     QApplication a(argc, argv);

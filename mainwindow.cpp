@@ -564,7 +564,7 @@ void MainWindow::DantzigAlgorithm()
                 if (gc.getCout(i,j) != 9999) // il y a un coût
                     message += " " + QString::number(gc.getCout(i,j)) + "   ";
                 else
-                    message += "    ";
+                    message += "  ∅  ";
         }
         QMessageBox{QMessageBox::Information, "Algorithme de Dantzig",message, QMessageBox::Ok}.exec();
     }
@@ -603,7 +603,11 @@ void MainWindow::DikjstraAlgorithm()
     {
         message += "\n("+ QString::number(i) + ") | ";
         for (int j=1; j<= g.getAps(0); j++)
-            message += " " + QString::number(dist[i][j]) + "   ";
+            if (dist[i][j] != 9999)
+                message += " " + QString::number(dist[i][j]) + "   ";
+            else
+                message += " ∞  ";
+
     }
 
     message += "\n\nMatrice des prédecesseurs :\n\n      ";

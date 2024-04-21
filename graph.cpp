@@ -15,7 +15,7 @@ int graph::getAps(int i) const {return d_aps[i];}
 bool graph::isTree() const
 {
   int n = d_aps[0];
-  return (n - 1)*2 == d_fs[0] - n + 1;
+  return (n - 1)*2 == d_fs[0] - n;
 }
 
 vector<int> graph::prufer() const
@@ -58,7 +58,7 @@ vector<int> graph::prufer() const
     degrees[v]--;
     leaves--;
   }
-
+  delete[] degrees;
   return result;
 }
         

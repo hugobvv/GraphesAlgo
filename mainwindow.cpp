@@ -279,6 +279,12 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
             auto ButtonPruferAlgorithm = new QPushButton{tr("Algorithme de PRÜFER")};
             ButtonPruferAlgorithm->setMinimumHeight(40);
             AlgorithmsButtonLayer3->addWidget(ButtonPruferAlgorithm);
+            connect(ButtonPruferAlgorithm, &QPushButton::clicked, this, &MainWindow::PruferAlgorithm);
+
+            auto ButtonInformations = new QPushButton{tr("Informations")};
+            ButtonInformations->setMinimumHeight(40);
+            AlgorithmsButtonLayer3->addWidget(ButtonInformations);
+            connect(ButtonInformations, &QPushButton::clicked, this, &MainWindow::AlgorithmsInformation);
 }
 
 void MainWindow::createWindow_KeyboardEnterD(int NA)
@@ -654,6 +660,38 @@ void MainWindow::KruskalAlgorithm()
     }
 
     QMessageBox{QMessageBox::Information, "Algorithme de Kruskal",message, QMessageBox::Ok}.exec();
+}
+
+void MainWindow::PruferAlgorithm()
+{
+    /*if (oriented)
+    {
+        QMessageBox{QMessageBox::Warning, "Algorithme de Kruskal","Le graphe ne doit pas être orienté", QMessageBox::Ok}.exec();
+        return;
+    }*/
+
+    graph g = genGraph();
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+    vector<int> Prufer = g.prufer();
+    if (Prufer.size() == 0)
+    {
+        QMessageBox{QMessageBox::Warning, "Algorithme de Prufer","Le graphe n'est pas un arbre", QMessageBox::Ok}.exec();
+        return;
+    }
+
+    QString message = "Codage de Prüfer :\n\n[";
+    for (int i=0; i<Prufer.size()-1; ++i)
+        message+= QString::number(Prufer[i]) + ",";
+    message+= QString::number(Prufer[Prufer.size()-1]) + "]";
+
+    QMessageBox{QMessageBox::Information, "Algorithme de Prüfer",message, QMessageBox::Ok}.exec();
+}
+
+void MainWindow::AlgorithmsInformation()
+{
+    QString message = "";
+    QMessageBox{QMessageBox::Information, "Informations",message, QMessageBox::Ok}.exec();
 }
 
 

@@ -58,16 +58,14 @@ void testPrufer()
     vector<int> pruferCode = g.prufer();
 
     for(int i = 0; i < pruferCode.size(); i++)
-        cout<<pruferCode[i] << " ";
-    int wait;
-    cin>>wait;
+        qInfo()<<pruferCode[i] << " ";
 }
 
 int main(int argc, char *argv[])
 {
-    
     QApplication a(argc, argv);
     MainWindow w;
+    testPrufer();
     w.show();
     return a.exec();
 }

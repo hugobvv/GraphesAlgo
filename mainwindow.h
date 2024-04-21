@@ -63,6 +63,8 @@ private:
                     void DantzigAlgorithm();
                     void DikjstraAlgorithm();
                     void KruskalAlgorithm();
+                    void PruferAlgorithm();
+                    void AlgorithmsInformation();
 
                     void click_ButtonAddMatrix();
                         vector<vector<QLineEdit*>> TaskCostEntries;

@@ -10,7 +10,7 @@ void testRang()
     vector<int> aps = {9, 1, 4, 6, 9, 10, 11, 13, 16, 20};
     vector<int> fs = {19, 2, 5, 0, 6, 0, 2, 4, 0, 8, 0, 0, 0, 3, 6, 0, 5, 9, 0, 5};
     vector<string> info = {};
-    graph g = graph(fs,aps,info,true);
+    graph g = graph(fs,aps,info);
     int *rang;
 
     algorithms algo = algorithms(g);
@@ -27,7 +27,7 @@ void testTarjan()
     vector<int> fs = {19, 3, 0, 1, 7, 0, 2, 0, 1, 5, 0, 10,
     0, 3, 4, 8, 9, 0, 8, 0, 3, 0, 4, 0, 9};
     vector<string> info = {};
-    graph g = graph(fs,aps,info,true);
+    graph g = graph(fs,aps,info);
     int *cfc;
     int *prem;
 
@@ -53,7 +53,7 @@ void testPrufer()
     vector<int> fs = {21,4,8,2,0,1,5,3,6,0,2,7,0,1,0,2,0,2,0,3,0,1};
     vector<string> info = {};
 
-    graph g = graph(fs,aps,info,false);
+    graph g = graph(fs,aps,info);
 
     vector<int> pruferCode = g.prufer();
 

@@ -2,8 +2,8 @@
 
 /* GRAPH CLASS */
 
-graph::graph(const vector<int> &fs, const vector<int> &aps, const vector<string> &info, bool oriented) 
-            : d_fs{fs}, d_aps{aps}, d_info{info}, d_oriented{oriented}, d_adj{}
+graph::graph(const vector<int> &fs, const vector<int> &aps, const vector<string> &info)
+            : d_fs{fs}, d_aps{aps}, d_info{info}, d_adj{}
 {
     genAdj(fs, aps);
 }

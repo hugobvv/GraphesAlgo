@@ -9,6 +9,16 @@ int graphWithCosts::getCout(int i, int j) const
     return d_cout[i][j];
 }
 
+int graphWithCosts::getNbAreteKruskal() const
+{
+    return d_gk.a.size();
+}
+
+arete graphWithCosts::getArete(int i) const
+{
+    return d_gk.a[i];
+}
+
 bool graphWithCosts::positiveCosts() const
 {
     for (int i=1; i<d_cout.size(); i++)
@@ -117,3 +127,87 @@ string graphWithCosts::Dantzig()
     }
     return "";
 }
+
+void graphWithCosts::Kruskal()
+{
+    graphKruskal g = convertToKruskal();
+
+    graphKruskal gMin;
+    gMin.n = g.n;
+    int *prem = new int [g.n+1];
+    int *pilch = new int [g.n+1];
+    int *cfc = new int [g.n+1];
+    for (int i=1; i<=g.n; ++i)
+    {
+        prem[i] = i;
+        pilch[i] = 0;
+        cfc[i] = i;
+    }
+    pilch[0] = 0;
+    int i = 0;
+    while (gMin.a.size() < g.n-1)
+    {
+        arete d = g.a[i];
+        if(cfc[d.s]!=cfc[d.t])
+        {
+            gMin.a.push_back(d);
+            fusion(d.s,d.t,prem,pilch,cfc);
+        }
+        ++i;
+    }
+
+    d_gk = gMin;
+    delete[] cfc;
+    delete[] pilch;
+    delete[] prem;
+}
+
+void graphWithCosts::fusion(int s, int t, int* prem, int* &pilch, int* &cfc) const
+{
+    int cs = cfc[s];
+    int ct = cfc[t];
+    int x = prem[ct];
+    while (x!=0)
+    {
+        cfc[x] = cs;
+        x = pilch[x];
+    }
+    x = prem[cs];
+    while(pilch[x]!=0)
+        x = pilch[x];
+    pilch[x] = prem[ct];
+}
+
+graphKruskal graphWithCosts::convertToKruskal() const
+{
+    graphKruskal kruskalGraph;
+    kruskalGraph.n = d_g.getAps(0); // Initialisation de kruskalGraph.n avec le nombre de sommets de g
+
+    /* Ajout des aretes */
+    int t;
+    for (int s=1; s < d_g.getAps(0); ++s)
+        for (int indFs = d_g.getAps(s); (t = d_g.getFs(indFs))!=0; ++indFs)
+            if (t >= s) //comme on parcours le graphe dans l'ordre, cela permet de ne pas ajouter 2x la même arete
+                kruskalGraph.a.push_back(arete(s,t,d_cout[s][t]));
+
+    /* Tri des aretes selon leur poids */
+    sort(kruskalGraph.a.begin(), kruskalGraph.a.end(), compareArete);
+
+    return kruskalGraph;
+}
+
+bool graphWithCosts::compareArete(const arete& a1, const arete& a2)
+{
+    /* Fonction de comparaison personnalisée pour trier les arêtes */
+    // Compare d'abord les poids
+    if (a1.p != a2.p) {
+        return a1.p < a2.p;
+    }
+    // Si les poids sont égaux, compare s
+    if (a1.s != a2.s) {
+        return a1.s < a2.s;
+    }
+    // Si s est égal, compare t
+    return a1.t < a2.t;
+}
+

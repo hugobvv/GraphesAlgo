@@ -67,8 +67,8 @@ private:
     int* calculateDDI() const;
 
     /* Datas */
-    int* d_pilch;
     graph d_g;
+    int* d_pilch;
     int d_numCfc;
 };
 

@@ -152,7 +152,7 @@ graph MainWindow::genGraph()
         aps[0] = aps.size()-1;
     }
     vector<string> info = {};
-    return graph(fs,aps,info,true);
+    return graph(fs,aps,info);
 }
 
 void MainWindow::graphClear()
@@ -635,12 +635,25 @@ void MainWindow::KruskalAlgorithm()
 
     if (g.getFsSize()<=1) //le graphe n'a pas été saisi
         return;
-    if (oriented)
+
+    /*if (oriented)
     {
         QMessageBox{QMessageBox::Warning, "Algorithme de Kruskal","Le graphe ne doit pas être orienté", QMessageBox::Ok}.exec();
         return;
-    }
+    }*/
+
     graphWithCosts gc = graphWithCosts{g,TaskCostValues};
+    gc.Kruskal();
+
+    QString message = "Graphe recouvrant minimal après application de l'algorithme de Kruskal :\n\n";
+    for (int i=0; i<gc.getNbAreteKruskal(); ++i)
+    {
+        arete a = gc.getArete(i);
+        message+= "Arête n°" + QString::number(i+1) + ": (" + QString::number(a.s) + "," + QString::number(a.t);
+        message+= ") -> poids : " + QString::number(a.p) + "\n";
+    }
+
+    QMessageBox{QMessageBox::Information, "Algorithme de Kruskal",message, QMessageBox::Ok}.exec();
 }
 
 
@@ -779,7 +792,7 @@ bool MainWindow::Check_TaskCost()
     for (int i=0; i<aps[0]; i++)
         TaskCostValues[0].push_back(0);
 
-    for(int i=0; i<aps[0]; i++)
+    for(int i=1; i<=aps[0]; i++)
     {
         replace(str3.begin(), str3.end(), ' ', ',');
         getline(inputFile, str3);
@@ -808,7 +821,7 @@ bool MainWindow::Check_TaskCost()
             return false;
         }
 
-        if(inputFile.eof() && i != aps[0]-1)
+        if(inputFile.eof() && i != aps[0])
         {
             QMessageBox{QMessageBox::Warning, "Fichier incompatible","La matrice des coûts du fichier séléctionné n'est pas complète.", QMessageBox::Ok}.exec();
             TaskCostValues.clear();

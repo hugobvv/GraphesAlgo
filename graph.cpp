@@ -2,11 +2,17 @@
 
 /* GRAPH CLASS */
 
+graph::graph()
+        : d_fs{vector<int>()}, d_aps{vector<int>()}, d_info{vector<string>()}, d_adj{}
+{}
+
 graph::graph(const vector<int> &fs, const vector<int> &aps, const vector<string> &info)
             : d_fs{fs}, d_aps{aps}, d_info{info}, d_adj{}
 {
     genAdj(fs, aps);
 }
+
+
 
 int graph::getFs(int i) const {return d_fs[i];}
 int graph::getFsSize() const {return d_fs.size();}
@@ -64,6 +70,8 @@ vector<int> graph::prufer() const
         
 void graph::genAdj(const vector<int> &fs, const vector<int> &aps)
 {
+    if(fs.size() == 0)
+        return;
     /*Initialiser matrice d'adjacence*/
     int n = aps[0];
     d_adj = new bool*[n+1];

@@ -46,7 +46,8 @@ private:
         void click_DirectedGraphButton();
             void createWindow_DirectedGraph();
             void click_KeyboardEnterD();
-                graph genGraph();
+                graph genGraphD();
+                graph genGraphU();
                 void graphClear();
                 void addAlgorithmButtons(QVBoxLayout *mainBox);
                 void createWindow_KeyboardEnterD(int NA); // NA = Nodes Amount = nombre de noeuds / sommets
@@ -72,14 +73,15 @@ private:
                         boolean TaskCostValuesEmpty = true;
                         void SaveTaskCostEntries();
                         void DeleteTaskCostEntries();
-                void createWindow_FileEnterD();
+                void createWindow_FileEnter();
                     string choosenFileName="";
                     void createWindow_ChooseAlgorithm();
                         bool Check_TaskCost();
             void GraphicEnterD();
             void createWindow_UndirectedGraph();
-            void KeyboardEnterU();
-            void FileEnterU();
+            void createWindow_KeyboardEnterU(int NC);
+                vector<vector<int>> Connections;
+                int NodesAmountValueUnoriented() const;
             void GraphicEnterU();
             bool oriented;
         void NodesAmountValueChanged(int value);

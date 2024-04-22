@@ -12,6 +12,7 @@ class graph
 public:
     /* Constructor */
     graph(const vector<int> &fs, const vector<int> &aps, const vector<string> &info = vector<string>());
+    graph();
 
     /* Getters */
     int getFs(int i) const;

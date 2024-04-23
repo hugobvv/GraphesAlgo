@@ -37,9 +37,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    vector<int> getFs();
-    vector<int> getAps();
-    vector<vector<int>>getTaskCostMatrix();
 
 private:
     void createMainWindow();
@@ -50,6 +47,7 @@ private:
                 graph genGraphU();
                 void graphClear();
                 void addAlgorithmButtons(QVBoxLayout *mainBox);
+                void addExtraBox(QVBoxLayout *mainBox);
                 void createWindow_KeyboardEnterD(int NA); // NA = Nodes Amount = nombre de noeuds / sommets
                     QSpinBox* NodesAmountSpinBox;
                     int NodesAmountValue=0;
@@ -70,23 +68,24 @@ private:
                     void click_ButtonAddMatrix();
                         vector<vector<QLineEdit*>> TaskCostEntries;
                         vector<vector<int>> TaskCostValues;
-                        boolean TaskCostValuesEmpty = true;
+                        bool TaskCostValuesEmpty = true;
+                        bool EdgeExist(int i, int j) const;
                         void SaveTaskCostEntries();
-                        void DeleteTaskCostEntries();
+                    void click_ButtonRename();
+                        vector<QLineEdit*> infosEntries;
+                        vector<string> infos;
+                        void SaveRenameEntries();
+
                 void createWindow_FileEnter();
                     string choosenFileName="";
                     void createWindow_ChooseAlgorithm();
                         bool Check_TaskCost();
-            void GraphicEnterD();
             void createWindow_UndirectedGraph();
             void createWindow_KeyboardEnterU(int NC);
                 vector<vector<int>> Connections;
+                int EdgesNumber;
                 int NodesAmountValueUnoriented() const;
-            void GraphicEnterU();
             bool oriented;
         void NodesAmountValueChanged(int value);
-
-        void afficheFs();
-        void afficheAps();
 };
 #endif // MAINWINDOW_H

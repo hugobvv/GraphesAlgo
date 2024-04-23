@@ -18,6 +18,7 @@ public:
     int getFs(int i) const;
     int getFsSize() const;
     int getAps(int i) const;
+    string getInfo(int i) const;
 
     /* Methods */
     bool isTree() const;

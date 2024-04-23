@@ -70,20 +70,15 @@ void MainWindow::createWindow_DirectedGraph()
     auto mainBox = new QVBoxLayout;
     MainWidget->setLayout(mainBox);
 
-    auto KeyobardEnter = new QPushButton{tr("Saisir le graphe AU CLAVIER")};
-    KeyobardEnter->setMinimumHeight(50);
-    mainBox->addWidget(KeyobardEnter);
-    connect(KeyobardEnter, &QPushButton::clicked, this, &MainWindow::click_KeyboardEnterD);
+    auto KeyboardEnter = new QPushButton{tr("Saisir le graphe AU CLAVIER")};
+    KeyboardEnter->setMinimumHeight(50);
+    mainBox->addWidget(KeyboardEnter);
+    connect(KeyboardEnter, &QPushButton::clicked, this, &MainWindow::click_KeyboardEnterD);
 
     auto FileEnter = new QPushButton{tr("Saisir le graphe avec FICHIER")};
     FileEnter->setMinimumHeight(50);
     mainBox->addWidget(FileEnter);
     connect(FileEnter, &QPushButton::clicked, this, &MainWindow::createWindow_FileEnter);
-
-    auto GraphicEnter = new QPushButton{tr("Saisir le graphe GRAPHIQUEMENT")};
-    GraphicEnter->setMinimumHeight(50);
-    mainBox->addWidget(GraphicEnter);
-    connect(GraphicEnter, &QPushButton::clicked, this, &MainWindow::GraphicEnterD);
 
     //MENU
     auto MenuTotalCancel = menuBar()->addAction("Retour au menu principal");
@@ -95,20 +90,9 @@ void MainWindow::click_KeyboardEnterD()
     createWindow_KeyboardEnterD(0);
 }
 
-void MainWindow::GraphicEnterD()
-{
-
-}
-
 graph MainWindow::genGraphD()
 {
     /* Génère le graphe courant */
-
-    if (fs.size() > 0) // si le graphe a déjà été encore généré
-    {
-        vector<string> info = {};
-        return graph(fs,aps,info);
-    }
 
     fs.clear();
     fs.push_back(0); // initialiser la premiere case à 0 (nbr de cases du tableau fs)
@@ -154,19 +138,13 @@ graph MainWindow::genGraphD()
             aps.push_back(i+1);
     aps[0] = aps.size()-1;
 
-    vector<string> info = {};
-    return graph(fs,aps,info);
+    saveSuccessorEntries();
+    return graph(fs,aps,infos);
 }
 
 graph MainWindow::genGraphU()
 {
     /* Génère le graphe courant (non-orienté)*/
-
-    if (fs.size() > 0) // si le graphe a déjà été encore généré
-    {
-        vector<string> info = {};
-        return graph(fs,aps,info);
-    }
 
     fs.clear();
     fs.push_back(0); // initialiser la premiere case à 0 (nbr de cases du tableau fs)
@@ -234,15 +212,16 @@ graph MainWindow::genGraphU()
     aps[0] = aps.size()-1;
     fs[0] = fs.size()-1;
     NodesAmountValue = max;
-
-    vector<string> info = {};
-    return graph(fs,aps,info);
+    for (const string &str : infos)
+        qInfo() << QString::fromStdString(str);
+    return graph(fs,aps,infos);
 }
 
 void MainWindow::graphClear()
 {
     fs.clear();
     aps.clear();
+    infos.clear();
     choosenFileName = "";
     for(int i=0; i<TaskCostEntries.size(); i++)
         TaskCostEntries[i].clear();
@@ -276,20 +255,15 @@ void MainWindow::createWindow_UndirectedGraph()
     auto mainBox = new QVBoxLayout;
     MainWidget->setLayout(mainBox);
 
-    auto KeyobardEnter = new QPushButton{tr("Saisir le graphe AU CLAVIER")};
-    KeyobardEnter->setMinimumHeight(50);
-    mainBox->addWidget(KeyobardEnter);
-    connect(KeyobardEnter, &QPushButton::clicked, this, &MainWindow::createWindow_KeyboardEnterU);
+    auto KeyboardEnter = new QPushButton{tr("Saisir le graphe AU CLAVIER")};
+    KeyboardEnter->setMinimumHeight(50);
+    mainBox->addWidget(KeyboardEnter);
+    connect(KeyboardEnter, &QPushButton::clicked, this, &MainWindow::createWindow_KeyboardEnterU);
 
     auto FileEnter = new QPushButton{tr("Saisir le graphe avec FICHIER")};
     FileEnter->setMinimumHeight(50);
     mainBox->addWidget(FileEnter);
     connect(FileEnter, &QPushButton::clicked, this, &MainWindow::createWindow_FileEnter);
-
-    auto GraphicEnter = new QPushButton{tr("Saisir le graphe GRAPHIQUEMENT")};
-    GraphicEnter->setMinimumHeight(50);
-    mainBox->addWidget(GraphicEnter);
-    connect(GraphicEnter, &QPushButton::clicked, this, &MainWindow::GraphicEnterU);
 
     //MENU
     auto MenuTotalCancel = menuBar()->addAction("Retour au menu principal");
@@ -299,17 +273,18 @@ void MainWindow::createWindow_UndirectedGraph()
 void MainWindow::createWindow_KeyboardEnterU(int NC)
 {
     SuccessorEntries.resize(NC+1);
-        for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
-            SuccessorEntries[i]= new QLineEdit{""};
+    for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
+        SuccessorEntries[i]= new QLineEdit{""};
 
-        SuccessorEntriesValues.resize(NC+1);
-        if(SuccessorEntriesValues.size()!=0)
-            for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
-                    SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
+    SuccessorEntriesValues.resize(NC+1);
+    if(SuccessorEntriesValues.size()!=0)
+        for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
+            SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
 
-        setMinimumSize(600,350+(NC/2.0)*53);
-        setMaximumSize(600,350+(NC/2.0)*53);
-        setWindowTitle(tr("Saisie au clavier d'un graphe non-orienté"));
+
+    setMinimumSize(600,350+(NC/2.0)*53);
+    setMaximumSize(600,350+(NC/2.0)*53);
+    setWindowTitle(tr("Saisie au clavier d'un graphe non-orienté"));
 
         //NETTOYAGE SINON ANCIENS BOUTONS REVIENNENT
             menuBar()->clear();
@@ -334,26 +309,10 @@ void MainWindow::createWindow_KeyboardEnterU(int NC)
                     NodesAmountChoiceBox->addWidget(NodesAmountSpinBox, 0, Qt::AlignCenter);
 
                     connect(NodesAmountSpinBox, &QSpinBox::valueChanged, this, &MainWindow::NodesAmountValueChanged);
-                    connect(NodesAmountSpinBox, &QSpinBox::valueChanged, this, [this]{ MainWindow::createWindow_KeyboardEnterU(NodesAmountValue);});
+                    connect(NodesAmountSpinBox, &QSpinBox::valueChanged, this, [this]{ MainWindow::createWindow_KeyboardEnterU(EdgesNumber);});
 
             addAlgorithmButtons(mainBox);
-
-            auto LigneH2 = new QFrame{};
-            LigneH2->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
-            mainBox->addWidget(LigneH2);
-
-            auto ButtonAddMatrix = new QPushButton{tr("Ajouter une matrice de coûts")};
-            ButtonAddMatrix->setMinimumHeight(30);
-            QFont font;
-            ButtonAddMatrix->setFont(font);
-            ButtonAddMatrix->setStyleSheet("color: Green");
-            mainBox->addWidget(ButtonAddMatrix);
-            connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::saveSuccessorEntries);
-            connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::click_ButtonAddMatrix);
-
-            auto LigneH4 = new QFrame{};
-            LigneH4->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
-            mainBox->addWidget(LigneH4);
+            addExtraBox(mainBox);
 
             auto HelpLabel = new QLabel{tr("Saisissez les arêtes du graphe : \n [Exemple] : 1 - 6    OU    2 - 5")};
                 mainBox->addWidget(HelpLabel, 0, Qt::AlignCenter);
@@ -374,11 +333,6 @@ void MainWindow::createWindow_KeyboardEnterU(int NC)
             //MENU
             auto MenuCancel = menuBar()->addAction("Retour");
             connect(MenuCancel,&QAction::triggered,this,&MainWindow::createWindow_UndirectedGraph);
-}
-
-void MainWindow::GraphicEnterU()
-{
-
 }
 
 int MainWindow::NodesAmountValueUnoriented() const
@@ -457,6 +411,37 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
             connect(ButtonInformations, &QPushButton::clicked, this, &MainWindow::AlgorithmsInformation);
 }
 
+void MainWindow::addExtraBox(QVBoxLayout *mainBox)
+{
+    auto LigneH1 = new QFrame{};
+    LigneH1->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
+    mainBox->addWidget(LigneH1);
+
+    auto box = new QHBoxLayout{};
+    mainBox->addLayout(box);
+
+    auto ButtonAddMatrix = new QPushButton{tr("Ajouter une matrice de coûts")};
+    ButtonAddMatrix->setMinimumHeight(30);
+    QFont font;
+    ButtonAddMatrix->setFont(font);
+    ButtonAddMatrix->setStyleSheet("color: Green");
+    box->addWidget(ButtonAddMatrix);
+    connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::saveSuccessorEntries);
+    connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::click_ButtonAddMatrix);
+
+    auto ButtonRename = new QPushButton{tr("Renommer les sommets")};
+    ButtonRename->setMinimumHeight(30);
+    ButtonRename->setFont(font);
+    ButtonRename->setStyleSheet("color: Green");
+    box->addWidget(ButtonRename);
+    connect(ButtonRename, &QPushButton::clicked, this, &MainWindow::saveSuccessorEntries);
+    connect(ButtonRename, &QPushButton::clicked, this, &MainWindow::click_ButtonRename);
+
+    auto LigneH2 = new QFrame{};
+    LigneH2->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
+    mainBox->addWidget(LigneH2);
+}
+
 void MainWindow::createWindow_KeyboardEnterD(int NA)
 {
     SuccessorEntries.resize(NA+1);
@@ -466,7 +451,7 @@ void MainWindow::createWindow_KeyboardEnterD(int NA)
     SuccessorEntriesValues.resize(NA+1);
     if(SuccessorEntriesValues.size()!=0)
         for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
-                SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
+            SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
 
     setMinimumSize(600,350+(NA/2.0)*53);
     setMaximumSize(600,350+(NA/2.0)*53);
@@ -499,23 +484,7 @@ void MainWindow::createWindow_KeyboardEnterD(int NA)
         connect(NodesAmountSpinBox, &QSpinBox::valueChanged, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
 
     addAlgorithmButtons(mainBox);
-
-    auto LigneH2 = new QFrame{};
-    LigneH2->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
-    mainBox->addWidget(LigneH2);
-
-    auto ButtonAddMatrix = new QPushButton{tr("Ajouter une matrice de coûts")};
-    ButtonAddMatrix->setMinimumHeight(30);
-    QFont font;
-    ButtonAddMatrix->setFont(font);
-    ButtonAddMatrix->setStyleSheet("color: Green");
-    mainBox->addWidget(ButtonAddMatrix);
-    connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::saveSuccessorEntries);
-    connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::click_ButtonAddMatrix);
-
-    auto LigneH4 = new QFrame{};
-    LigneH4->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
-    mainBox->addWidget(LigneH4);
+    addExtraBox(mainBox);
 
     auto HelpLabel = new QLabel{tr("Saisissez les successeurs de chaque sommet respectif : \n [Exemple] : 4,8,9,14")};
     mainBox->addWidget(HelpLabel, 0, Qt::AlignCenter);
@@ -541,15 +510,16 @@ void MainWindow::createWindow_KeyboardEnterD(int NA)
 void MainWindow::NodesAmountValueChanged(int value)
 {
     saveSuccessorEntries();
-    NodesAmountValue = value;
+    if (oriented)
+        NodesAmountValue = value;
+    else
+        EdgesNumber = value;
 }
 
 void MainWindow::click_ButtonAddMatrix()
 {
-    if (!oriented)
-        genGraphU();
-    else
-        genGraphD();
+    oriented ? genGraphD() : genGraphU();
+
     if(NodesAmountValue > 0)
     {
         setWindowTitle("Saisie de la matrice des coûts");
@@ -591,6 +561,11 @@ void MainWindow::click_ButtonAddMatrix()
                 TaskCostEntries[i][j] = lineEdit;
                 lineEdit->setFixedSize(35, 35);
                 lineEdit->setAlignment(Qt::AlignCenter);
+                if (!EdgeExist(i,j)) //si l'arête n'existe pas
+                {
+                    lineEdit->setText("∞");
+                    lineEdit->setReadOnly(true);
+                }
                 matrixBox->addWidget(lineEdit, i, j);
             }
         }
@@ -610,23 +585,26 @@ void MainWindow::click_ButtonAddMatrix()
             auto ButtonCancel = new QPushButton{tr("Annuler")};
             ButtonsBox->addWidget(ButtonCancel);
             ButtonCancel->setMinimumHeight(NodesAmountValue*50/2 - 8);
-            connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
-
-            if(!TaskCostValuesEmpty)
-            {
-                auto ButtonDelete = new QPushButton{tr("Supprimer")};
-                ButtonsBox->addWidget(ButtonDelete);
-                ButtonSave->setMinimumHeight(NodesAmountValue*50/3 - 8);
-                ButtonCancel->setMinimumHeight(NodesAmountValue*50/3 - 8);
-                ButtonDelete->setMinimumHeight(NodesAmountValue*50/3 - 8);
-                connect(ButtonDelete, &QPushButton::clicked, this,&MainWindow::DeleteTaskCostEntries);
-            }
+            if (oriented)
+                connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
+            else
+                connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterU(EdgesNumber);});
     }
     else
     {
         QMessageBox{QMessageBox::Warning, "Nombre de sommets vide","Votre nombre de sommets est vide.", QMessageBox::Ok}.exec();
         return;
     }
+}
+
+bool MainWindow::EdgeExist(int i, int j) const
+{
+    /* Vérifie si l'arête existe */
+    int t;
+    for (int k=aps[i]; (t=fs[k])!=0; ++k)
+        if (t == j)
+            return true;
+    return false;
 }
 
 void MainWindow::SaveTaskCostEntries()
@@ -646,18 +624,74 @@ void MainWindow::SaveTaskCostEntries()
         }
     }
     QMessageBox{QMessageBox::Information,"Matrice des coûts","La matrice des coûts a été enregistrée avec succès.", QMessageBox::Ok}.exec();
-    createWindow_KeyboardEnterD(NodesAmountValue);
     TaskCostValuesEmpty = false;
+
+    oriented ? createWindow_KeyboardEnterD(NodesAmountValue) : createWindow_KeyboardEnterU(EdgesNumber);
 }
 
-void MainWindow::DeleteTaskCostEntries()
+void MainWindow::click_ButtonRename()
 {
-    for(int i=0; i<TaskCostEntries.size(); i++)
-        TaskCostEntries[i].clear();
-    TaskCostEntries.clear();
-    TaskCostValuesEmpty = true;
-    QMessageBox{QMessageBox::Information,"Matrice des coûts","La matrice des coûts a été supprimée.", QMessageBox::Ok}.exec();
-    click_ButtonAddMatrix();
+    oriented ? genGraphD() : genGraphU();
+
+    if(NodesAmountValue > 0)
+    {
+        setWindowTitle("Renommer les sommets");
+        setMinimumSize(400,NodesAmountValue*50);
+        setMaximumSize(400,NodesAmountValue*50);
+
+        menuBar()->clear();
+        auto MainWidget= new QWidget;
+        setCentralWidget(MainWidget);
+
+        auto mainBox = new QHBoxLayout;
+        MainWidget->setLayout(mainBox);
+
+        auto FormBox = new QFormLayout;
+        mainBox->addLayout(FormBox);
+
+        infosEntries.resize(NodesAmountValue+1);
+        for(int i=1; i<=NodesAmountValue; i++)
+        {
+            auto NodesAmountLabel = new QLabel{"SOMMET N° " + QString::number(i)};
+            QLineEdit *lineEdit = new QLineEdit;
+            infosEntries[i] = lineEdit;
+            FormBox->addRow(NodesAmountLabel, lineEdit);
+        }
+
+        auto LigneH1 = new QFrame{};
+        LigneH1->setFrameStyle(QFrame::VLine | QFrame :: Sunken);
+        mainBox->addWidget(LigneH1);
+
+        auto ButtonsBox = new QVBoxLayout;
+        mainBox->addLayout(ButtonsBox);
+
+            auto ButtonSave = new QPushButton{tr("Enregistrer")};
+            ButtonsBox->addWidget(ButtonSave);
+            ButtonSave->setMinimumHeight(NodesAmountValue*50/2 - 8);
+            connect(ButtonSave, &QPushButton::clicked, this,&MainWindow::SaveRenameEntries);
+
+            auto ButtonCancel = new QPushButton{tr("Annuler")};
+            ButtonsBox->addWidget(ButtonCancel);
+            ButtonCancel->setMinimumHeight(NodesAmountValue*50/2 - 8);
+            if (oriented)
+                connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
+            else
+                connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterU(EdgesNumber);});
+    }
+    else
+        QMessageBox{QMessageBox::Warning, "Nombre de sommets vide","Votre nombre de sommets est vide.", QMessageBox::Ok}.exec();
+}
+
+void MainWindow::SaveRenameEntries()
+{
+    infos.resize(NodesAmountValue+1);
+    for (int i = 1; i <= NodesAmountValue; ++i)
+    {
+        stringstream ss(infosEntries[i]->text().toStdString());
+        infos[i] = ss.str();
+    }
+    QMessageBox{QMessageBox::Information,"Renommage des sommets","Le nom des sommets a été enregistré avec succès.", QMessageBox::Ok}.exec();
+    oriented ? createWindow_KeyboardEnterD(NodesAmountValue) : createWindow_KeyboardEnterU(EdgesNumber);
 }
 
 void MainWindow::saveSuccessorEntries()
@@ -680,9 +714,12 @@ void MainWindow::RankAlgorithm()
     algo.rang(rang);
 
     string s = "";
-    for (int i=1; i<=aps[0]; i++)
-        s+= "rang(" + to_string(i) + ") = " + to_string(rang[i]) + "\n";
-
+    if(infos.size()>0) //si les sommets sont renommés
+        for (int i=1; i<=aps[0]; i++)
+            s+= "rang(" + g.getInfo(i) + ") = " + to_string(rang[i]) + "\n";
+    else
+        for (int i=1; i<=aps[0]; i++)
+            s+= "rang(" + to_string(i) + ") = " + to_string(rang[i]) + "\n";
     QMessageBox{QMessageBox::Information, "Algorithme du rang",QString::fromStdString(s), QMessageBox::Ok}.exec();
 }
 
@@ -699,11 +736,23 @@ void MainWindow::TarjanAlgorithm()
     algo.fortConnexe(prem, cfc);
 
     string s = "";
-    for (int i=1; i<=aps[0]; i++)
-        s+= "CFC(" + to_string(i) + ") = " + to_string(cfc[i]) + "\n";
-    s+= "\n";
-    for (int i=1; i<=prem[0]; i++)
-        s+= "Prem(" + to_string(i) + ") = " + to_string(prem[i]) + "\n";
+    if(infos.size()>0) //si les sommets sont renommés
+    {
+        for (int i=1; i<=aps[0]; i++)
+            s+= "CFC(" + g.getInfo(i) + ") = " + to_string(cfc[i]) + "\n";
+        s+= "\n";
+        for (int i=1; i<=prem[0]; i++)
+            s+= "Prem(" + g.getInfo(i) + ") = " + to_string(prem[i]) + "\n";
+    }
+    else
+    {
+        for (int i=1; i<=aps[0]; i++)
+            s+= "CFC(" + to_string(i) + ") = " + to_string(cfc[i]) + "\n";
+        s+= "\n";
+        for (int i=1; i<=prem[0]; i++)
+            s+= "Prem(" + to_string(i) + ") = " + to_string(prem[i]) + "\n";
+    }
+
 
     //graph g1 = algo.graph_reduit(prem, cfc);
     //afficher graph g1
@@ -825,13 +874,20 @@ void MainWindow::KruskalAlgorithm()
     gc.Kruskal();
 
     QString message = "Graphe recouvrant minimal après application de l'algorithme de Kruskal :\n\n";
-    for (int i=0; i<gc.getNbAreteKruskal(); ++i)
-    {
-        arete a = gc.getArete(i);
-        message+= "Arête n°" + QString::number(i+1) + ": (" + QString::number(a.s) + "," + QString::number(a.t);
-        message+= ") -> poids : " + QString::number(a.p) + "\n";
-    }
-
+    if (infos.size()>0)
+        for (int i=0; i<gc.getNbAreteKruskal(); ++i)
+        {
+            arete a = gc.getArete(i);
+            message+= "Arête n°" + QString::number(i+1) + ": (" + QString::fromStdString(g.getInfo(a.s)) + "," + QString::fromStdString(g.getInfo(a.t));
+            message+= ") -> poids : " + QString::number(a.p) + "\n";
+        }
+    else
+        for (int i=0; i<gc.getNbAreteKruskal(); ++i)
+        {
+            arete a = gc.getArete(i);
+            message+= "Arête n°" + QString::number(i+1) + ": (" + QString::number(a.s) + "," + QString::number(a.t);
+            message+= ") -> poids : " + QString::number(a.p) + "\n";
+        }
     QMessageBox{QMessageBox::Information, "Algorithme de Kruskal",message, QMessageBox::Ok}.exec();
 }
 
@@ -854,9 +910,18 @@ void MainWindow::PruferAlgorithm()
     }
 
     QString message = "Codage de Prüfer :\n\n[";
-    for (int i=0; i<Prufer.size()-1; ++i)
-        message+= QString::number(Prufer[i]) + ",";
-    message+= QString::number(Prufer[Prufer.size()-1]) + "]";
+    if (infos.size()>0)
+    {
+        for (int i=0; i<Prufer.size()-1; ++i)
+            message+= QString::fromStdString(g.getInfo(Prufer[i])) + ",";
+        message+= QString::fromStdString(g.getInfo(Prufer[Prufer.size()-1])) + "]";
+    }
+    else
+    {
+        for (int i=0; i<Prufer.size()-1; ++i)
+            message+= QString::number(Prufer[i]) + ",";
+        message+= QString::number(Prufer[Prufer.size()-1]) + "]";
+    }
 
     QMessageBox{QMessageBox::Information, "Algorithme de Prüfer",message, QMessageBox::Ok}.exec();
 }
@@ -1046,34 +1111,4 @@ bool MainWindow::Check_TaskCost()
     return true;
 }
 
-
-
 //----------------- FIN FENETRE SAISIE FICHIER GRAPHE ORIENTE----------------------//
-
-
-void MainWindow::afficheFs()
-{
-    for(int i=0; i < static_cast<int>(fs.size());i++)
-        qInfo() << fs[i];
-}
-
-void MainWindow::afficheAps()
-{
-    for(int i=0; i < static_cast<int>(aps.size());i++)
-        qInfo() << aps[i];
-}
-
-vector<int> MainWindow::getFs()
-{
-    return fs;
-}
-
-vector<int> MainWindow::getAps()
-{
-    return aps;
-}
-
-vector<vector<int>> MainWindow::getTaskCostMatrix()
-{
-    return TaskCostValues;
-}

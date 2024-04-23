@@ -12,11 +12,10 @@ graph::graph(const vector<int> &fs, const vector<int> &aps, const vector<string>
     genAdj(fs, aps);
 }
 
-
-
 int graph::getFs(int i) const {return d_fs[i];}
 int graph::getFsSize() const {return d_fs.size();}
 int graph::getAps(int i) const {return d_aps[i];}
+string graph::getInfo(int i) const {return d_info[i];};
 
 bool graph::isTree() const
 {

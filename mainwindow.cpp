@@ -332,7 +332,9 @@ void MainWindow::createWindow_KeyboardEnterU(int NC)
 
             //MENU
             auto MenuCancel = menuBar()->addAction("Retour");
+            auto MenuSave = menuBar()->addAction("Enregistrer");
             connect(MenuCancel,&QAction::triggered,this,&MainWindow::createWindow_UndirectedGraph);
+            connect(MenuSave,&QAction::triggered,this,&MainWindow::saveGraphToFile);
 }
 
 int MainWindow::NodesAmountValueUnoriented() const
@@ -504,7 +506,9 @@ void MainWindow::createWindow_KeyboardEnterD(int NA)
 
     //MENU
     auto MenuCancel = menuBar()->addAction("Retour");
+    auto MenuSave = menuBar()->addAction("Enregistrer");
     connect(MenuCancel,&QAction::triggered,this,&MainWindow::createWindow_DirectedGraph);
+    connect(MenuSave,&QAction::triggered,this,&MainWindow::saveGraphToFile);
 }
 
 void MainWindow::NodesAmountValueChanged(int value)
@@ -1112,3 +1116,58 @@ bool MainWindow::Check_TaskCost()
 }
 
 //----------------- FIN FENETRE SAISIE FICHIER GRAPHE ORIENTE----------------------//
+
+void MainWindow::saveGraphToFile()
+{
+    graph g = oriented ? genGraphD() : genGraphU();
+
+    QString filename = QFileDialog::getSaveFileName(nullptr, "Enregistrer le graphe", "", "Fichiers texte (*.txt)");
+
+    if (filename.isEmpty())
+        return;
+
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Erreur : Impossible d'ouvrir le fichier" << filename;
+        return;
+    }
+
+    QTextStream out(&file);
+
+    int i;
+    for (i = 0; i < g.getAps(0); ++i)
+    {
+        out << g.getAps(i) << ",";
+    }
+    out << g.getAps(i) << Qt::endl;
+
+
+    for (i = 0; i < g.getFsSize() - 1; ++i)
+    {
+        out << g.getFs(i) << ",";
+    }
+    out << g.getFs(i) << Qt::endl;
+
+    if (!TaskCostValuesEmpty)
+    {
+        for (int j = 1; j < TaskCostValues.size(); ++j)
+        {
+            for (i = 1; i < TaskCostValues[j].size()-1; ++i)
+            {
+                out << TaskCostValues[j][i] << ",";
+            }
+            out << TaskCostValues[j][i] << Qt::endl;
+        }
+    }
+
+    for (i = 1; i <= g.getAps(0); ++i)
+    {
+        out << QString::fromStdString(g.getInfo(i));
+        if (i < g.getAps(0)) out << ",";
+    }
+
+    file.close();
+}
+
+

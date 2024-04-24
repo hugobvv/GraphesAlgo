@@ -87,5 +87,6 @@ private:
                 int NodesAmountValueUnoriented() const;
             bool oriented;
         void NodesAmountValueChanged(int value);
+        void saveGraphToFile();
 };
 #endif // MAINWINDOW_H

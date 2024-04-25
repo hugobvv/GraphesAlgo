@@ -94,6 +94,9 @@ graph MainWindow::genGraphD()
 {
     /* Génère le graphe courant */
 
+    if (choosenFileName != "") //si le graphe a été généré par fichier
+        return graph(fs,aps,infos);
+
     fs.clear();
     fs.push_back(0); // initialiser la premiere case à 0 (nbr de cases du tableau fs)
     aps.clear();
@@ -145,6 +148,9 @@ graph MainWindow::genGraphD()
 graph MainWindow::genGraphU()
 {
     /* Génère le graphe courant (non-orienté)*/
+
+    if (choosenFileName != "") //si le graphe a été généré par fichier
+        return graph(fs,aps,infos);
 
     fs.clear();
     fs.push_back(0); // initialiser la premiere case à 0 (nbr de cases du tableau fs)
@@ -212,8 +218,6 @@ graph MainWindow::genGraphU()
     aps[0] = aps.size()-1;
     fs[0] = fs.size()-1;
     NodesAmountValue = max;
-    for (const string &str : infos)
-        qInfo() << QString::fromStdString(str);
     return graph(fs,aps,infos);
 }
 
@@ -272,6 +276,7 @@ void MainWindow::createWindow_UndirectedGraph()
 
 void MainWindow::createWindow_KeyboardEnterU(int NC)
 {
+    choosenFileName = "";
     SuccessorEntries.resize(NC+1);
     for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
         SuccessorEntries[i]= new QLineEdit{""};
@@ -411,6 +416,21 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
             ButtonInformations->setMinimumHeight(40);
             AlgorithmsButtonLayer3->addWidget(ButtonInformations);
             connect(ButtonInformations, &QPushButton::clicked, this, &MainWindow::AlgorithmsInformation);
+
+    auto LigneH1 = new QFrame{};
+    LigneH1->setFrameStyle(QFrame::HLine | QFrame :: Sunken);
+    mainBox->addWidget(LigneH);
+
+    auto showGraphBox = new QHBoxLayout;
+    mainBox->addLayout(showGraphBox);
+
+        auto ButtonShowGraph = new QPushButton{tr("Afficher le graphe")};
+        ButtonShowGraph->setMinimumHeight(30);
+        QFont font;
+        ButtonShowGraph->setFont(font);
+        ButtonShowGraph->setStyleSheet("color: Blue");
+        showGraphBox->addWidget(ButtonShowGraph);
+        connect(ButtonShowGraph, &QPushButton::clicked, this, &MainWindow::showGraph);
 }
 
 void MainWindow::addExtraBox(QVBoxLayout *mainBox)
@@ -446,6 +466,7 @@ void MainWindow::addExtraBox(QVBoxLayout *mainBox)
 
 void MainWindow::createWindow_KeyboardEnterD(int NA)
 {
+    choosenFileName = "";
     SuccessorEntries.resize(NA+1);
     for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
         SuccessorEntries[i]= new QLineEdit{""};
@@ -1121,6 +1142,9 @@ void MainWindow::saveGraphToFile()
 {
     graph g = oriented ? genGraphD() : genGraphU();
 
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+
     QString filename = QFileDialog::getSaveFileName(nullptr, "Enregistrer le graphe", "", "Fichiers texte (*.txt)");
 
     if (filename.isEmpty())
@@ -1161,13 +1185,100 @@ void MainWindow::saveGraphToFile()
         }
     }
 
-    for (i = 1; i <= g.getAps(0); ++i)
+    for (i = 1; i < infos.size(); ++i)
     {
         out << QString::fromStdString(g.getInfo(i));
         if (i < g.getAps(0)) out << ",";
     }
 
     file.close();
+}
+
+void MainWindow::showGraph()
+{
+    /* Affiche le graphe graphiquement */
+
+    graph g = oriented ? genGraphD() : genGraphU();
+
+    if(g.getFsSize()<=1)
+        return;
+
+    int nbSommet = g.getAps(0);
+    menuBar()->clear();
+
+    // Définir les coordonnées des sommets (sur 3 lignes)
+    vector<QPointF> nodeCoordinates(nbSommet+1);
+    int div = nbSommet/3;
+    double horizontalSpacing = 800.0 / (nbSommet+1);
+    for (int i=1; i<= div; ++i)
+        nodeCoordinates[i] = QPointF(i * horizontalSpacing, 50.0);
+    for (int i=div+1; i<= 2*div; ++i)
+        nodeCoordinates[i] = QPointF((i-div) * horizontalSpacing + 20, 175.0);
+    for (int i=2*div+1; i<= nbSommet; ++i)
+        nodeCoordinates[i] = QPointF((i-2*div) * horizontalSpacing - 40, 350.0);
+
+    // Créer la scène principale
+    QGraphicsScene *mainScene = new QGraphicsScene();
+    mainScene->setSceneRect(0, 0, 400, 400);
+
+    // Dessiner les sommets
+    QFont font("Arial", 12);
+    for (int i = 1; i < nodeCoordinates.size(); ++i)
+    {
+        QPointF coord = nodeCoordinates[i];
+        int number = i;
+        // Dessiner le cercle
+        mainScene->addEllipse(coord.x() - 20, coord.y() - 20, 40, 40, QPen(Qt::black), QBrush(Qt::black));
+        // Écrire le numéro à l'intérieur du cercle
+        QGraphicsTextItem *text = mainScene->addText(QString::number(number), font);
+        text->setDefaultTextColor(Qt::white);
+        text->setPos(coord.x() - 5, coord.y() - 5);
+        text->setZValue(1); // Mettre le texte au-dessus du cercle
+    }
+
+    // Dessiner les arêtes
+    int s=1;
+    for (int i=1; i<fs.size(); ++i)
+    {
+        if(fs[i]!=0)
+        {
+            // Dessiner l'arête
+            QPointF startPoint = nodeCoordinates[s];
+            QPointF endPoint = nodeCoordinates[fs[i]];
+            mainScene->addLine(startPoint.x(), startPoint.y(), endPoint.x(), endPoint.y(), QPen(Qt::black));
+
+            // Dessiner la flèche
+            qreal arrowLength = 20.0;
+            qreal angle = std::atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
+            QPointF arrowEnd = endPoint - QPointF(arrowLength * std::cos(angle), arrowLength * std::sin(angle));
+            QGraphicsPolygonItem *arrowItem = new QGraphicsPolygonItem(QPolygonF() << QPointF(0, 0) << QPointF(-10, 4) << QPointF(-10, -4));
+            arrowItem->setTransform(QTransform().translate(arrowEnd.x(), arrowEnd.y()).rotateRadians(angle));
+            mainScene->addItem(arrowItem);
+        }
+        else
+            s++;
+    }
+
+    auto ButtonBack = new QPushButton{tr("Retour")};
+    ButtonBack->setMinimumHeight(50);
+    ButtonBack->setMaximumHeight(50);
+    if (oriented)
+        connect(ButtonBack, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
+    else
+        connect(ButtonBack, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterU(EdgesNumber);});
+
+    // Afficher la scène principale dans une vue
+    QGraphicsView *mainView = new QGraphicsView(mainScene, this);
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(mainView);
+    layout->addWidget(ButtonBack);
+
+    // Définir le layout comme layout principal de la fenêtre principale
+    QWidget *centralWidget = new QWidget();
+    centralWidget->setLayout(layout);
+    setCentralWidget(centralWidget);
+    setWindowTitle("Afficher le graphique");
+    setFixedSize(800,500);
 }
 
 

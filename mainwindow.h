@@ -24,6 +24,10 @@
 #include <stdexcept>
 #include <QGridLayout>
 #include <QWidget>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsEllipseItem>
+#include <QGraphicsLineItem>
 #include "graph.h"
 
 using namespace std;
@@ -88,5 +92,6 @@ private:
             bool oriented;
         void NodesAmountValueChanged(int value);
         void saveGraphToFile();
+        void showGraph();
 };
 #endif // MAINWINDOW_H

@@ -13,13 +13,15 @@ SOURCES += \
     graph.cpp \
     graphWithCosts.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    scheduling.cpp
 
 HEADERS += \
     algorithms.h \
     graph.h \
     graphWithCosts.h \
-    mainwindow.h
+    mainwindow.h \
+    scheduling.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -91,6 +91,7 @@ private:
                 int EdgesNumber;
                 int NodesAmountValueUnoriented() const;
             bool oriented;
+            bool file;
         void NodesAmountValueChanged(int value);
         void saveGraphToFile();
         void showCurrentGraph();

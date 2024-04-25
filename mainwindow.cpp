@@ -276,6 +276,7 @@ void MainWindow::createWindow_UndirectedGraph()
 
 void MainWindow::createWindow_KeyboardEnterU(int NC)
 {
+    file = false;
     choosenFileName = "";
     SuccessorEntries.resize(NC+1);
     for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
@@ -287,8 +288,8 @@ void MainWindow::createWindow_KeyboardEnterU(int NC)
             SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
 
 
-    setMinimumSize(600,350+(NC/2.0)*53);
-    setMaximumSize(600,350+(NC/2.0)*53);
+    setMinimumSize(600,380+(NC/2.0)*53);
+    setMaximumSize(600,380+(NC/2.0)*53);
     setWindowTitle(tr("Saisie au clavier d'un graphe non-orienté"));
 
         //NETTOYAGE SINON ANCIENS BOUTONS REVIENNENT
@@ -393,6 +394,7 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
             auto ButtonSchedulingAlgorithm = new QPushButton{tr("Algorithme de l'ORDONNANCEMENT")};
             ButtonSchedulingAlgorithm->setMinimumHeight(40);
             AlgorithmsButtonLayer2->addWidget(ButtonSchedulingAlgorithm);
+            //connect(ButtonSchedulingAlgorithm, &QPushButton::clicked, this, &MainWindow::/*nom fonction algo ordo*/);
 
             auto ButtonDantzigAlgorithm = new QPushButton{tr("Algorithme de DANTZIG")};
             ButtonDantzigAlgorithm->setMinimumHeight(40);
@@ -471,6 +473,7 @@ void MainWindow::addExtraBox(QVBoxLayout *mainBox)
 
 void MainWindow::createWindow_KeyboardEnterD(int NA)
 {
+    file = false;
     choosenFileName = "";
     SuccessorEntries.resize(NA+1);
     for(int i=1; i<static_cast<int>(SuccessorEntries.size());i++)
@@ -481,8 +484,8 @@ void MainWindow::createWindow_KeyboardEnterD(int NA)
         for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
             SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
 
-    setMinimumSize(600,350+(NA/2.0)*53);
-    setMaximumSize(600,350+(NA/2.0)*53);
+    setMinimumSize(600,380+(NA/2.0)*53);
+    setMaximumSize(600,380+(NA/2.0)*53);
     setWindowTitle(tr("Saisie au clavier d'un graphe orienté"));
 
     //NETTOYAGE SINON ANCIENS BOUTONS REVIENNENT
@@ -968,7 +971,7 @@ void MainWindow::PruferAlgorithm()
 
 void MainWindow::AlgorithmsInformation()
 {
-    graph b = genGraphU();
+    graph b = genGraphD();
     QString message = "";
     QMessageBox{QMessageBox::Information, "Informations",message, QMessageBox::Ok}.exec();
 }
@@ -987,8 +990,10 @@ void MainWindow::showCurrentGraph()
 
 void MainWindow::createWindow_FileEnter()
 {
-    QFileDialog F(nullptr, "Choisir un fichier");
-    F.setNameFilter("Fichiers texte (*.txt)");
+    file = true;
+        QFileDialog F(nullptr, "Choisir un fichier");
+        F.setNameFilter("Fichiers texte (*.txt)");
+
 
 
     if (F.exec() == QDialog::Accepted)
@@ -1049,6 +1054,7 @@ void MainWindow::createWindow_FileEnter()
             choosenFileName = f.fileName().toStdString();
             createWindow_ChooseAlgorithm();
     }
+
 }
 
 void MainWindow::createWindow_ChooseAlgorithm()
@@ -1087,7 +1093,10 @@ void MainWindow::createWindow_ChooseAlgorithm()
 
     //MENU
     auto MenuCancel = menuBar()->addAction("Retour");
-    connect(MenuCancel,&QAction::triggered,this,&MainWindow::createWindow_DirectedGraph);
+    if(oriented)
+        connect(MenuCancel,&QAction::triggered,this,&MainWindow::createWindow_DirectedGraph);
+    else
+        connect(MenuCancel,&QAction::triggered,this,&MainWindow::createWindow_UndirectedGraph);
 
     addAlgorithmButtons(mainBox);
 }
@@ -1281,8 +1290,10 @@ void MainWindow::showGraph(const graph &g, const QString &titre)
     auto ButtonBack = new QPushButton{tr("Retour")};
     ButtonBack->setMinimumHeight(50);
     ButtonBack->setMaximumHeight(50);
-    if (oriented)
-        connect(ButtonBack, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
+    if(file)
+        connect(ButtonBack,&QPushButton::clicked,this,&MainWindow::createWindow_ChooseAlgorithm);
+    else if(oriented)
+            connect(ButtonBack, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
     else
         connect(ButtonBack, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterU(EdgesNumber);});
 

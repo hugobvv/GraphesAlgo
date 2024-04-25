@@ -283,10 +283,8 @@ void MainWindow::createWindow_KeyboardEnterU(int NC)
         SuccessorEntries[i]= new QLineEdit{""};
 
     SuccessorEntriesValues.resize(NC+1);
-    if(SuccessorEntriesValues.size()!=0)
-        for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
-            SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
-
+    for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
+        SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
 
     setMinimumSize(600,380+(NC/2.0)*53);
     setMaximumSize(600,380+(NC/2.0)*53);
@@ -480,9 +478,8 @@ void MainWindow::createWindow_KeyboardEnterD(int NA)
         SuccessorEntries[i]= new QLineEdit{""};
 
     SuccessorEntriesValues.resize(NA+1);
-    if(SuccessorEntriesValues.size()!=0)
-        for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
-            SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
+    for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
+        SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
 
     setMinimumSize(600,380+(NA/2.0)*53);
     setMaximumSize(600,380+(NA/2.0)*53);
@@ -979,6 +976,8 @@ void MainWindow::AlgorithmsInformation()
 void MainWindow::showCurrentGraph()
 {
     graph g = oriented ? genGraphD() : genGraphU();
+    if (g.getFsSize()==0)
+        return;
     showGraph(g, "Afficher le graphe courant");
 }
 
@@ -1260,31 +1259,44 @@ void MainWindow::showGraph(const graph &g, const QString &titre)
         else
             text = mainScene->addText(QString::fromStdString(g.getInfo(i)), font);
         text->setDefaultTextColor(Qt::red);
-        text->setPos(coord.x() - 5, coord.y() - 5);
+        text->setPos(coord.x()-10, coord.y()-10);
         text->setZValue(1); // Mettre le texte au-dessus du cercle
     }
 
-    // Dessiner les arêtes
     int s=1;
-    for (int i=1; i<g.getFs(0); ++i)
-    {
-        if(g.getFs(i)!=0)
+    if (oriented) // Dessiner les flèches
+        for (int i=1; i<g.getFs(0); ++i)
         {
-            // Dessiner l'arête
-            QPointF startPoint = nodeCoordinates[s];
-            QPointF endPoint = nodeCoordinates[g.getFs(i)];
-            mainScene->addLine(startPoint.x(), startPoint.y(), endPoint.x(), endPoint.y(), QPen(Qt::black));
+            if(g.getFs(i)!=0)
+            {
+                // Dessiner l'arête
+                QPointF startPoint = nodeCoordinates[s];
+                QPointF endPoint = nodeCoordinates[g.getFs(i)];
+                mainScene->addLine(startPoint.x(), startPoint.y(), endPoint.x(), endPoint.y(), QPen(Qt::black));
 
-            // Dessiner la flèche
-            qreal arrowLength = 20.0;
-            qreal angle = std::atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
-            QPointF arrowEnd = endPoint - QPointF(arrowLength * std::cos(angle), arrowLength * std::sin(angle));
-            QGraphicsPolygonItem *arrowItem = new QGraphicsPolygonItem(QPolygonF() << QPointF(0, 0) << QPointF(-10, 4) << QPointF(-10, -4));
-            arrowItem->setTransform(QTransform().translate(arrowEnd.x(), arrowEnd.y()).rotateRadians(angle));
-            mainScene->addItem(arrowItem);
+                // Dessiner la flèche
+                qreal arrowLength = 20.0;
+                qreal angle = std::atan2(endPoint.y() - startPoint.y(), endPoint.x() - startPoint.x());
+                QPointF arrowEnd = endPoint - QPointF(arrowLength * std::cos(angle), arrowLength * std::sin(angle));
+                QGraphicsPolygonItem *arrowItem = new QGraphicsPolygonItem(QPolygonF() << QPointF(0, 0) << QPointF(-10, 4) << QPointF(-10, -4));
+                arrowItem->setTransform(QTransform().translate(arrowEnd.x(), arrowEnd.y()).rotateRadians(angle));
+                mainScene->addItem(arrowItem);
+            }
+            else
+                s++;
         }
-        else
-            s++;
+    else  // Dessiner les arêtes
+    {
+        s = 1;
+        for (int i=1; i<g.getFs(0); ++i)
+            if(g.getFs(i)!=0)
+            {
+                QPointF startPoint = nodeCoordinates[s];
+                QPointF endPoint = nodeCoordinates[g.getFs(i)];
+                mainScene->addLine(startPoint.x(), startPoint.y(), endPoint.x(), endPoint.y(), QPen(Qt::black));
+            }
+            else
+                s++;
     }
 
     auto ButtonBack = new QPushButton{tr("Retour")};
@@ -1293,7 +1305,7 @@ void MainWindow::showGraph(const graph &g, const QString &titre)
     if(file)
         connect(ButtonBack,&QPushButton::clicked,this,&MainWindow::createWindow_ChooseAlgorithm);
     else if(oriented)
-            connect(ButtonBack, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
+        connect(ButtonBack, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
     else
         connect(ButtonBack, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterU(EdgesNumber);});
 
@@ -1310,5 +1322,3 @@ void MainWindow::showGraph(const graph &g, const QString &titre)
     setWindowTitle(titre);
     setFixedSize(800,500);
 }
-
-

@@ -137,13 +137,15 @@ graph algorithms::graph_reduit(int *prem, int *cfc)
 				{
 					fsr.push_back(cfc[t]);
 					deja_mis[cfc[t]] = true;
+                    kr++;
 				}
 			}
 			s=d_pilch[s];
 		}
 		fsr.push_back(0);
+
 	}
-	fsr[0]=fsr.size();
+    fsr[0]=fsr.size()-1;
 
 	delete[] deja_mis;
 	return graph(fsr, apsr);

@@ -63,6 +63,7 @@ private:
 
                     void RankAlgorithm();
                     void TarjanAlgorithm();
+                    void showTarjanGraph();
                     void DantzigAlgorithm();
                     void DikjstraAlgorithm();
                     void KruskalAlgorithm();
@@ -92,6 +93,7 @@ private:
             bool oriented;
         void NodesAmountValueChanged(int value);
         void saveGraphToFile();
-        void showGraph();
+        void showCurrentGraph();
+        void showGraph(const graph &g, const QString &titre);
 };
 #endif // MAINWINDOW_H

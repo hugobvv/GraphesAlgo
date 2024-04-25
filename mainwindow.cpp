@@ -382,6 +382,11 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
             AlgorithmsButtonLayer1->addWidget(ButtonTarjanAlgorithm);
             connect(ButtonTarjanAlgorithm, &QPushButton::clicked, this, &MainWindow::TarjanAlgorithm);
 
+            auto ButtonGraphTarjan = new QPushButton{tr("Graphe réduit selon TARJAN")};
+            ButtonGraphTarjan->setMinimumHeight(40);
+            AlgorithmsButtonLayer1->addWidget(ButtonGraphTarjan);
+            connect(ButtonGraphTarjan, &QPushButton::clicked, this, &MainWindow::showTarjanGraph);
+
         auto AlgorithmsButtonLayer2 = new QHBoxLayout;
         AlgorithmsButtonBox->addLayout(AlgorithmsButtonLayer2);
 
@@ -430,7 +435,7 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
         ButtonShowGraph->setFont(font);
         ButtonShowGraph->setStyleSheet("color: Blue");
         showGraphBox->addWidget(ButtonShowGraph);
-        connect(ButtonShowGraph, &QPushButton::clicked, this, &MainWindow::showGraph);
+        connect(ButtonShowGraph, &QPushButton::clicked, this, &MainWindow::showCurrentGraph);
 }
 
 void MainWindow::addExtraBox(QVBoxLayout *mainBox)
@@ -777,12 +782,22 @@ void MainWindow::TarjanAlgorithm()
         for (int i=1; i<=prem[0]; i++)
             s+= "Prem(" + to_string(i) + ") = " + to_string(prem[i]) + "\n";
     }
-
-
-    //graph g1 = algo.graph_reduit(prem, cfc);
-    //afficher graph g1
-
     QMessageBox{QMessageBox::Information, "Algorithme de Tarjan",QString::fromStdString(s), QMessageBox::Ok}.exec();
+}
+
+void MainWindow::showTarjanGraph()
+{
+    graph g = oriented? genGraphD() : genGraphU();
+
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+
+    int *cfc;
+    int *prem;
+    algorithms algo = algorithms(g);
+    algo.fortConnexe(prem, cfc);
+    graph g1 = algo.graph_reduit(prem, cfc);
+    showGraph(g1, "Afficher le graphe réduit selon Tarjan");
 }
 
 void MainWindow::DantzigAlgorithm()
@@ -956,6 +971,12 @@ void MainWindow::AlgorithmsInformation()
     graph b = genGraphU();
     QString message = "";
     QMessageBox{QMessageBox::Information, "Informations",message, QMessageBox::Ok}.exec();
+}
+
+void MainWindow::showCurrentGraph()
+{
+    graph g = oriented ? genGraphD() : genGraphU();
+    showGraph(g, "Afficher le graphe courant");
 }
 
 
@@ -1194,14 +1215,9 @@ void MainWindow::saveGraphToFile()
     file.close();
 }
 
-void MainWindow::showGraph()
+void MainWindow::showGraph(const graph &g, const QString &titre)
 {
     /* Affiche le graphe graphiquement */
-
-    graph g = oriented ? genGraphD() : genGraphU();
-
-    if(g.getFsSize()<=1)
-        return;
 
     int nbSommet = g.getAps(0);
     menuBar()->clear();
@@ -1226,25 +1242,28 @@ void MainWindow::showGraph()
     for (int i = 1; i < nodeCoordinates.size(); ++i)
     {
         QPointF coord = nodeCoordinates[i];
-        int number = i;
         // Dessiner le cercle
         mainScene->addEllipse(coord.x() - 20, coord.y() - 20, 40, 40, QPen(Qt::black), QBrush(Qt::black));
         // Écrire le numéro à l'intérieur du cercle
-        QGraphicsTextItem *text = mainScene->addText(QString::number(number), font);
-        text->setDefaultTextColor(Qt::white);
+        QGraphicsTextItem *text;
+        if (!g.info())
+            text = mainScene->addText(QString::number(i), font);
+        else
+            text = mainScene->addText(QString::fromStdString(g.getInfo(i)), font);
+        text->setDefaultTextColor(Qt::red);
         text->setPos(coord.x() - 5, coord.y() - 5);
         text->setZValue(1); // Mettre le texte au-dessus du cercle
     }
 
     // Dessiner les arêtes
     int s=1;
-    for (int i=1; i<fs.size(); ++i)
+    for (int i=1; i<g.getFs(0); ++i)
     {
-        if(fs[i]!=0)
+        if(g.getFs(i)!=0)
         {
             // Dessiner l'arête
             QPointF startPoint = nodeCoordinates[s];
-            QPointF endPoint = nodeCoordinates[fs[i]];
+            QPointF endPoint = nodeCoordinates[g.getFs(i)];
             mainScene->addLine(startPoint.x(), startPoint.y(), endPoint.x(), endPoint.y(), QPen(Qt::black));
 
             // Dessiner la flèche
@@ -1277,7 +1296,7 @@ void MainWindow::showGraph()
     QWidget *centralWidget = new QWidget();
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
-    setWindowTitle("Afficher le graphique");
+    setWindowTitle(titre);
     setFixedSize(800,500);
 }
 

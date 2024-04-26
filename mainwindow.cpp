@@ -71,12 +71,12 @@ void MainWindow::createWindow_DirectedGraph()
     MainWidget->setLayout(mainBox);
 
     auto KeyboardEnter = new QPushButton{tr("Saisir le graphe AU CLAVIER")};
-    KeyboardEnter->setMinimumHeight(50);
+    KeyboardEnter->setMinimumHeight(80);
     mainBox->addWidget(KeyboardEnter);
     connect(KeyboardEnter, &QPushButton::clicked, this, &MainWindow::click_KeyboardEnterD);
 
     auto FileEnter = new QPushButton{tr("Saisir le graphe avec FICHIER")};
-    FileEnter->setMinimumHeight(50);
+    FileEnter->setMinimumHeight(80);
     mainBox->addWidget(FileEnter);
     connect(FileEnter, &QPushButton::clicked, this, &MainWindow::createWindow_FileEnter);
 
@@ -260,12 +260,12 @@ void MainWindow::createWindow_UndirectedGraph()
     MainWidget->setLayout(mainBox);
 
     auto KeyboardEnter = new QPushButton{tr("Saisir le graphe AU CLAVIER")};
-    KeyboardEnter->setMinimumHeight(50);
+    KeyboardEnter->setMinimumHeight(80);
     mainBox->addWidget(KeyboardEnter);
     connect(KeyboardEnter, &QPushButton::clicked, this, &MainWindow::createWindow_KeyboardEnterU);
 
     auto FileEnter = new QPushButton{tr("Saisir le graphe avec FICHIER")};
-    FileEnter->setMinimumHeight(50);
+    FileEnter->setMinimumHeight(80);
     mainBox->addWidget(FileEnter);
     connect(FileEnter, &QPushButton::clicked, this, &MainWindow::createWindow_FileEnter);
 
@@ -286,8 +286,8 @@ void MainWindow::createWindow_KeyboardEnterU(int NC)
     for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
         SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
 
-    setMinimumSize(600,380+(NC/2.0)*53);
-    setMaximumSize(600,380+(NC/2.0)*53);
+    setMinimumSize(650,380+(NC/2.0)*53);
+    setMaximumSize(650,380+(NC/2.0)*53);
     setWindowTitle(tr("Saisie au clavier d'un graphe non-orienté"));
 
         //NETTOYAGE SINON ANCIENS BOUTONS REVIENNENT
@@ -301,7 +301,7 @@ void MainWindow::createWindow_KeyboardEnterU(int NC)
 
             auto NodesAmountChoiceBox = new QHBoxLayout;
                 mainBox->addLayout(NodesAmountChoiceBox);
-                    auto NodesAmountLabel = new QLabel{tr("                 NOMBRE D'ARRÊTES DU GRAPHE : ")};
+                    auto NodesAmountLabel = new QLabel{tr("                 NOMBRE D'ARÊTES DU GRAPHE : ")};
                     NodesAmountChoiceBox->addWidget(NodesAmountLabel, 0, Qt::AlignCenter);
                     NodesAmountLabel->setMinimumHeight(50);
                     auto NodesAmountSpinBox = new QSpinBox{};
@@ -417,7 +417,7 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
             AlgorithmsButtonLayer3->addWidget(ButtonPruferAlgorithm);
             connect(ButtonPruferAlgorithm, &QPushButton::clicked, this, &MainWindow::PruferAlgorithm);
 
-            auto ButtonInformations = new QPushButton{tr("Informations")};
+            auto ButtonInformations = new QPushButton{tr("INFORMATIONS")};
             ButtonInformations->setMinimumHeight(40);
             AlgorithmsButtonLayer3->addWidget(ButtonInformations);
             connect(ButtonInformations, &QPushButton::clicked, this, &MainWindow::AlgorithmsInformation);
@@ -429,7 +429,7 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
     auto showGraphBox = new QHBoxLayout;
     mainBox->addLayout(showGraphBox);
 
-        auto ButtonShowGraph = new QPushButton{tr("Afficher le graphe")};
+        auto ButtonShowGraph = new QPushButton{tr("AFFICHER LE GRAPHE")};
         ButtonShowGraph->setMinimumHeight(30);
         QFont font;
         ButtonShowGraph->setFont(font);
@@ -481,8 +481,8 @@ void MainWindow::createWindow_KeyboardEnterD(int NA)
     for(int i=1; i<static_cast<int>(SuccessorEntriesValues.size()); i++)
         SuccessorEntries[i]->setText(QString::fromStdString(SuccessorEntriesValues[i]));
 
-    setMinimumSize(600,380+(NA/2.0)*53);
-    setMaximumSize(600,380+(NA/2.0)*53);
+    setMinimumSize(650,380+(NA/2.0)*53);
+    setMaximumSize(650,380+(NA/2.0)*53);
     setWindowTitle(tr("Saisie au clavier d'un graphe orienté"));
 
     //NETTOYAGE SINON ANCIENS BOUTONS REVIENNENT

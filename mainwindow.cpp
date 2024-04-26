@@ -718,7 +718,11 @@ void MainWindow::SaveRenameEntries()
     for (int i = 1; i <= NodesAmountValue; ++i)
     {
         stringstream ss(infosEntries[i]->text().toStdString());
-        infos[i] = ss.str();
+        string name = ss.str();
+        if (name!="")
+            infos[i] = name;
+        else
+            infos[i] = to_string(i);
     }
     QMessageBox{QMessageBox::Information,"Renommage des sommets","Le nom des sommets a été enregistré avec succès.", QMessageBox::Ok}.exec();
     oriented ? createWindow_KeyboardEnterD(NodesAmountValue) : createWindow_KeyboardEnterU(EdgesNumber);

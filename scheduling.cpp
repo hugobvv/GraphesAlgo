@@ -2,6 +2,8 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+
+
 using namespace std;
 
 
@@ -12,6 +14,7 @@ scheduling::scheduling(const graph &graphe): d_graphe{graphe}
     for(int i = 0; i < n; i++)
     {
         d_task[i].name = d_graphe.getInfo(i+1);
+
     }
 
     int current_task = 1;
@@ -70,11 +73,11 @@ vector<task> scheduling::getTask() const
     return d_task;
 }
 
-void scheduling::enterduration(vector<task> &t)
+void scheduling::enterduration(vector<int> &t)
 {
     for(int i = 0; i < t.size(); i++)
     {
-        d_task[i].duration = t[i].duration;
+        d_task[i].duration = t[i];
     }
 }
 

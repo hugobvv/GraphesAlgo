@@ -5,6 +5,7 @@
 #include "graph.h"
 #include <vector>
 
+
 using namespace std;
 
 
@@ -30,7 +31,7 @@ public:
     void calculateLatestStart();
     void findCriticalPath(int current_task, vector<string>& current_path);
     void calculateCriticalPath();
-     void enterduration(vector<task> &t);
+     void enterduration(vector<int> &t);
 
     /* Getters */
     vector<task> getTask() const;

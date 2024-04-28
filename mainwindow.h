@@ -30,6 +30,7 @@
 #include <QGraphicsLineItem>
 #include "graph.h"
 
+
 using namespace std;
 class QLineEdit;
 class QLabel;
@@ -41,6 +42,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    string getInfos(int i);
 
 private:
     void createMainWindow();
@@ -68,6 +70,11 @@ private:
                     void DikjstraAlgorithm();
                     void KruskalAlgorithm();
                     void PruferAlgorithm();
+                    void SchedulingAlgorithm();
+                        vector<int> TaskDuration;
+                        vector<QLineEdit*> TaskDurationEntries;
+                        void SaveTaskDurationEntries();
+                        void click_ButtonDuration();
                     void AlgorithmsInformation();
 
                     void click_ButtonAddMatrix();

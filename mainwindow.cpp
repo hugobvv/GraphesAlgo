@@ -2,6 +2,7 @@
 #include "graph.h"
 #include "algorithms.h"
 #include "graphWithCosts.h"
+#include "scheduling.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -93,9 +94,16 @@ void MainWindow::click_KeyboardEnterD()
 graph MainWindow::genGraphD()
 {
     /* Génère le graphe courant */
+    infos.push_back("null");
+    for(int i=0; i<SuccessorEntries.size()-1; i++)
+    {
+        infos.push_back(to_string(i+1));
+    }
 
-    if (choosenFileName != "") //si le graphe a été généré par fichier
+    if (file) //si le graphe a été généré par fichier
         return graph(fs,aps,infos);
+
+
 
     fs.clear();
     fs.push_back(0); // initialiser la premiere case à 0 (nbr de cases du tableau fs)
@@ -392,7 +400,7 @@ void MainWindow::addAlgorithmButtons(QVBoxLayout *mainBox)
             auto ButtonSchedulingAlgorithm = new QPushButton{tr("Algorithme de l'ORDONNANCEMENT")};
             ButtonSchedulingAlgorithm->setMinimumHeight(40);
             AlgorithmsButtonLayer2->addWidget(ButtonSchedulingAlgorithm);
-            //connect(ButtonSchedulingAlgorithm, &QPushButton::clicked, this, &MainWindow::/*nom fonction algo ordo*/);
+            connect(ButtonSchedulingAlgorithm, &QPushButton::clicked, this, &MainWindow::SchedulingAlgorithm);
 
             auto ButtonDantzigAlgorithm = new QPushButton{tr("Algorithme de DANTZIG")};
             ButtonDantzigAlgorithm->setMinimumHeight(40);
@@ -455,6 +463,14 @@ void MainWindow::addExtraBox(QVBoxLayout *mainBox)
     box->addWidget(ButtonAddMatrix);
     connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::saveSuccessorEntries);
     connect(ButtonAddMatrix, &QPushButton::clicked, this, &MainWindow::click_ButtonAddMatrix);
+
+    auto ButtonAddDurations = new QPushButton{tr("Ajouter une durée au tâches")};
+    ButtonAddMatrix->setMinimumHeight(30);
+    ButtonAddMatrix->setFont(font);
+    ButtonAddMatrix->setStyleSheet("color: Green");
+    box->addWidget(ButtonAddDurations);
+    connect(ButtonAddDurations, &QPushButton::clicked, this, &MainWindow::saveSuccessorEntries);
+    connect(ButtonAddDurations, &QPushButton::clicked, this, &MainWindow::click_ButtonDuration);
 
     auto ButtonRename = new QPushButton{tr("Renommer les sommets")};
     ButtonRename->setMinimumHeight(30);
@@ -666,8 +682,8 @@ void MainWindow::click_ButtonRename()
     if(NodesAmountValue > 0)
     {
         setWindowTitle("Renommer les sommets");
-        setMinimumSize(400,NodesAmountValue*50);
-        setMaximumSize(400,NodesAmountValue*50);
+        setMinimumSize(400,NodesAmountValue*30);
+        setMaximumSize(400,NodesAmountValue*30);
 
         menuBar()->clear();
         auto MainWidget= new QWidget;
@@ -697,12 +713,12 @@ void MainWindow::click_ButtonRename()
 
             auto ButtonSave = new QPushButton{tr("Enregistrer")};
             ButtonsBox->addWidget(ButtonSave);
-            ButtonSave->setMinimumHeight(NodesAmountValue*50/2 - 8);
+            ButtonSave->setMinimumHeight((NodesAmountValue*30)/2 - 8);
             connect(ButtonSave, &QPushButton::clicked, this,&MainWindow::SaveRenameEntries);
 
             auto ButtonCancel = new QPushButton{tr("Annuler")};
             ButtonsBox->addWidget(ButtonCancel);
-            ButtonCancel->setMinimumHeight(NodesAmountValue*50/2 - 8);
+            ButtonCancel->setMinimumHeight((NodesAmountValue*30)/2 - 8);
             if (oriented)
                 connect(ButtonCancel, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
             else
@@ -969,6 +985,119 @@ void MainWindow::PruferAlgorithm()
 
     QMessageBox{QMessageBox::Information, "Algorithme de Prüfer",message, QMessageBox::Ok}.exec();
 }
+
+void MainWindow::SchedulingAlgorithm()
+{
+    if (!oriented)
+    {
+        QMessageBox{QMessageBox::Warning, "Algorithme de l'ordonnancement","Le graphe doit être orienté", QMessageBox::Ok}.exec();
+        return;
+    }
+    graph g = genGraphD();
+    if (g.getFsSize()<=1) //le graphe n'a pas été saisi
+        return;
+
+    scheduling s = scheduling(g);
+    if(TaskDuration.size() == 0)
+    {
+        QMessageBox{QMessageBox::Warning, "Erreur","Les durées des tâches n'ont pas été entrées.", QMessageBox::Ok}.exec();
+        return;
+    }
+    s.enterduration(TaskDuration);
+    s.calculateEarliestStart();
+    s.calculateLatestStart();
+    s.calculateCriticalPath();
+
+    for(int i= 0; i<infos.size(); i++)
+        qInfo() << QString::fromStdString(infos[i]);
+
+    string msg{""};
+    vector<vector<string>> cp = s.getCritical_paths();
+    for(int i=0; i<cp.size(); i++)
+    {
+        for(int j=0; j<cp[i].size(); j++)
+        {
+            msg += cp[i][j] + " -> ";
+        }
+        msg += "\n";
+    }
+    QMessageBox{QMessageBox::Warning, "Algorithme de l'ordonnancement","Voici les chemins critiques : \n"
+                 + QString::fromStdString(msg),QMessageBox::Ok}.exec();
+}
+
+void MainWindow::click_ButtonDuration()
+{
+    if(NodesAmountValue > 0)
+    {
+        setWindowTitle("Ajouter une durée aux tâches");
+        setMinimumSize(400,NodesAmountValue*30);
+        setMaximumSize(400,NodesAmountValue*30);
+
+        menuBar()->clear();
+        auto MainWidget= new QWidget;
+        setCentralWidget(MainWidget);
+
+        auto mainBox = new QHBoxLayout;
+        MainWidget->setLayout(mainBox);
+
+        auto FormBox = new QFormLayout;
+        mainBox->addLayout(FormBox);
+
+        TaskDurationEntries.resize(NodesAmountValue+1);
+        for(int i=1; i<=NodesAmountValue; i++)
+        {
+            auto NodesAmountLabel = new QLabel{"Durée de la tâche N° " + QString::number(i)};
+            QLineEdit *lineEdit = new QLineEdit;
+            TaskDurationEntries[i] = lineEdit;
+            FormBox->addRow(NodesAmountLabel, lineEdit);
+        }
+
+        auto LigneH1 = new QFrame{};
+        LigneH1->setFrameStyle(QFrame::VLine | QFrame :: Sunken);
+        mainBox->addWidget(LigneH1);
+
+        auto ButtonsBox = new QVBoxLayout;
+        mainBox->addLayout(ButtonsBox);
+
+            auto ButtonSave = new QPushButton{tr("Enregistrer")};
+            ButtonsBox->addWidget(ButtonSave);
+            ButtonSave->setMinimumHeight((NodesAmountValue*30)/2 - 8);
+            connect(ButtonSave, &QPushButton::clicked, this,&MainWindow::SaveTaskDurationEntries);
+            connect(ButtonSave, &QPushButton::clicked, this, [this]{ MainWindow::createWindow_KeyboardEnterD(NodesAmountValue);});
+
+            auto ButtonCancel = new QPushButton{tr("Annuler")};
+            ButtonsBox->addWidget(ButtonCancel);
+            ButtonCancel->setMinimumHeight((NodesAmountValue*30)/2 - 8);
+            connect(ButtonCancel, &QPushButton::clicked, this,&MainWindow::createWindow_KeyboardEnterD);
+
+
+    }
+    else
+        QMessageBox{QMessageBox::Warning, "Nombre de sommets vide","Votre nombre de sommets est vide.", QMessageBox::Ok}.exec();
+}
+
+void MainWindow::SaveTaskDurationEntries()
+{
+    TaskDuration.clear();
+    for (int i = 1; i <= NodesAmountValue; ++i)
+    {
+        string V = TaskDurationEntries[i]->text().toStdString() + " ";
+        if(!(V.length() == 0))
+        {
+            stringstream ss(V);
+                int number = -99999;
+                ss >> number;
+                if(number <= 0)
+                {
+                    QMessageBox{QMessageBox::Warning, "Erreur de saisie","La durée d'une tâche doit etre un entier différent de 0.", QMessageBox::Ok}.exec();
+                    TaskDuration.clear();
+                    return;
+                }
+                TaskDuration.push_back(number);
+        }
+    }
+}
+
 
 void MainWindow::AlgorithmsInformation()
 {
@@ -1325,4 +1454,9 @@ void MainWindow::showGraph(const graph &g, const QString &titre)
     setCentralWidget(centralWidget);
     setWindowTitle(titre);
     setFixedSize(800,500);
+}
+
+string MainWindow::getInfos(int i)
+{
+    return infos[i];
 }

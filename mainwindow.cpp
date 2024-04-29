@@ -1102,8 +1102,25 @@ void MainWindow::SaveTaskDurationEntries()
 void MainWindow::AlgorithmsInformation()
 {
     graph b = genGraphD();
-    QString message = "";
-    QMessageBox{QMessageBox::Information, "Informations",message, QMessageBox::Ok}.exec();
+    QString message = "Prufer :Le principe du codage de Prufer est de représenter un arbre par une séquence de nombres de longueur n-2 ou n est le nombre sommets, chaque nombre représenté un sommet dans l'arbre. Cet algorithme élimine les feuilles par ordre croissant en rentrant dans la séquence de nombres le sommet lie à la feuille éliminée , il nécessite donc un arbre non oriente pour être exécuté.\n\nDijkstra :L'algorithme de Dijkstra permet de trouver le chemin le plus court entre le sommet de départ et tous les sommets d'un graphe.\nL'algorithme de Dijkstra parcours les sommets en fonction de leur distance par rapport au sommet de départ, ensuite on choisit le sommet le plus proche et on réitère le processus en remplaçant le chemin précédent si on trouve un chemin plus court entre 2 sommets. Pour pouvoir appliquer cet algorithme il faut que les couts entre les sommets soient positifs ou nuls.\n\nProblème d'ordonnancement :\n\nLe problème d'ordonnancement permet de trouver le ou les chemins critiques d'un graphe orienté ou chaque sommet représente une tache d'un même projet. Le cout entre les sommets représente les durées. Un chemin critique est un chemin dans le graphe qui va de la tache de départ du projet jusqu'à la tache d'arrivée et où chaque tache ne peut pas être retardée. Pour trouver ce chemin l'algorithme calcule la date au plus tôt et au plus tard de chaque tache.\n\nKruskal: \nL'algorithme de Kruskal permet de trouver l'arbre de recouvrement minimal dans un graphe non orienté. Pour commencer l'algorithme trie les arêtes par poids croissant cherche l'arête avec le poids le plus petit pour l'ajouter dans l'arbre ensuite si l'arête ne crée pas de boucle il l'ajoute sinon il passe à l'arête suivante jusqu'à ce qu'il parcoure toutes les arêtes du graphe.\n\nTarjan: \nL'algorithme de tarjan permet de trouver les composantes fortement connexes d'un graphe. Il commence par parcourir le graphe à partir d'un sommet de départ en attribuant à chaque sommet une numérotation jusqu'à ce qu'il ne puisse plus avancé puis calcule le ro de chaque sommet si le ro est égal à la numérotation tous les sommets de celui de départ au sommets courants devient une composante, ensuite il réitère le processus pour tous les successeurs de chaque sommet en veillant à ne pas aller dans un successeur déjà visité jusqu'à ce qu'il ait visité tous les sommets. L'algorithme de Tarjan permet aussi d'afficher le graphe réduit, qui est l'unique base d'un graphe orienté sans circuit formé des sommets qui n'ont pas de prédecesseurs.\n\nDantzig:\nL'algorithme de Dantzig permet de trouver les chemins les plus courts dans un graphe entre un sommet de départ et tous les autres sommets. L'algorithme parcoure la matrice de coût, a chaque nouveau sommet il ajoute une ligne et colonne a son parcours et en parallèle met à jour les distances les plus courtes.\n\nRang: \nAlgorithme du rang permet de trouver le rang d'un sommet d'un graphe orienté pour cela il faut trouver la longueur maximale d'un chemin arrivant à ce sommet. Le maximum des rangs des sommets du graphe est appelé rang du graphe, si le graphe possède un circuit le rang maximal est égal a l'infini.";
+    /*QMessageBox msgBox;
+    msgBox.setWindowTitle("Informations");
+    msgBox.setText(message);
+    msgBox.exec();*/
+
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea->setWindowTitle("Informations");
+
+    QLabel *label = new QLabel();
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextBrowserInteraction);
+    label->setFixedSize(1000, 600);
+    label->setWordWrap(true);
+    label->setText(message);
+
+    scrollArea->setWidget(label);
+    scrollArea->setWidgetResizable(true);
+
+    scrollArea->show();
 }
 
 void MainWindow::showCurrentGraph()
